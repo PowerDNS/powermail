@@ -126,7 +126,7 @@ CPPFLAGS="$CPPFLAGS -I${MYSQL_incdir}"
 AC_SUBST(userbasesdirs)
 AC_SUBST(userbasesfiles)
 
-userbases="mysqlpdns mysqlplain mysqlsimplepdns text postgresql"
+userbases="mysqlpdns mysqlplain mysqlsimplepdns text"
 AC_ARG_WITH(userbases, [  --with-userbases Which userbases to compile with ], 
 [
 	userbases="$withval"  

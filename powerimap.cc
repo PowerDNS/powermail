@@ -1,3 +1,20 @@
+/*
+    PowerMail versatile mail receiver
+    Copyright (C) 2002  PowerDNS.COM BV
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 #include "session.hh"
 #include "ahuexception.hh"
 #include "imapsession.hh"
@@ -205,7 +222,7 @@ int PowerImapMain(int argc, char **argv)
     }
     args().preparseArgs(argc, argv,"version");
     if(args().commandGiven("version")) {
-      cerr<<"powerimap version "<<VERSION<<". This is $Id: powerimap.cc,v 1.1 2002-12-04 13:46:43 ahu Exp $"<<endl;
+      cerr<<"powerimap version "<<VERSION<<". This is $Id: powerimap.cc,v 1.2 2002-12-04 16:32:49 ahu Exp $"<<endl;
       exit(0);
     }
 
