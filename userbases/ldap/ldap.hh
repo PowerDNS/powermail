@@ -43,6 +43,7 @@ private:
   string d_alternate_attribute;
   string d_alternate_domain;
   string d_alternate_base;
+  string d_forwarding_attribute;
 };
 
 #endif /* LDAPUSERBASE_HH */

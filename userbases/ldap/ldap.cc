@@ -36,6 +36,7 @@ LDAPUserBase::LDAPUserBase(const string &host)
   d_alternate_attribute=args().paramString("ldap-alternate-attribute");
   d_alternate_domain=args().paramString("ldap-alternate-mbox-domain");
   d_alternate_base=args().paramString("ldap-alternate-base");
+  d_forwarding_attribute=args().paramString("ldap-forwarding-attribute");
 
   vector<string> parts;
   stringtok(parts,args().paramString("ldap-domain-map")," \t\n");
@@ -120,8 +121,15 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
 	if(!d_alternate_domain.empty())
 	  md.canonicalMbox+="@"+d_alternate_domain;
 	L<<Logger::Notice<<"Alternate search indirected to "<<md.canonicalMbox<<endl;
-	md.isForward=false;
-	md.mbQuota=0;
+
+	if(!d_forwarding_attribute.empty() && res[0].count(d_forwarding_attribute)) {
+	  md.isForward=true;
+	  md.fwdDest=res[0][d_forwarding_attribute][0];
+	}
+	else {
+	  md.isForward=false;
+	  md.mbQuota=0;
+	}
 	return 0;
       }
     }
@@ -136,7 +144,14 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
     if(!res.empty()) {
       exists=true;
       md.canonicalMbox=mbox;
-      md.isForward=false;
+      if(!d_forwarding_attribute.empty() && res[0].count(d_forwarding_attribute)) {
+	md.isForward=true;
+	md.fwdDest=res[0][d_forwarding_attribute][0];
+      }
+      else {
+	md.isForward=false;
+	md.mbQuota=0;
+      }
       md.mbQuota=0;
       return 0;
     }
@@ -169,6 +184,7 @@ public:
     args().addParameter("ldap-alternate-attribute","Attribute to use for alternate address","");
     args().addParameter("ldap-alternate-mbox-domain","Localpart to assume for mbox in case of alternate","");
     args().addParameter("ldap-alternate-base","Base to assume for mbox in case of alternate","");
+    args().addParameter("ldap-forward-attribute","Attribute which, if present, denotes a forwarding address","");
   }
 };
 

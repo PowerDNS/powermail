@@ -12,7 +12,7 @@
       </affiliation>
     </author>
     
-    <PubDate>v1.0 $Date: 2002-12-29 17:05:49 $</PubDate>
+    <PubDate>v1.0 $Date: 2002-12-31 12:46:21 $</PubDate>
     
     <Abstract>
       <para>	
@@ -1736,6 +1736,15 @@ address "sales@example.com" {
 	      <para>
 		Attribute to search on. With the map above, a message for "ahu@ds9a.nl" with ldap-search-attribute=uid
 		leads to a search on (uid=ahu) within "ou=People,dc=ds9a,dc=nl". PowerDNS does 'scope=subtree' searches.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>ldap-forwarding-attribute</term>
+	    <listitem>
+	      <para>
+		If non-empty, this attribute is checked for a forwarding email address for this mailbox. The account can however still
+		log in to retrieve remaining messages. 
 	      </para>
 	    </listitem>
 	  </varlistentry>
