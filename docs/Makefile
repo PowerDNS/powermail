@@ -1,12 +1,12 @@
-# $Id: Makefile,v 1.2 2002-12-09 16:59:14 ahu Exp $ 
+# $Id: Makefile,v 1.3 2002-12-10 16:07:10 ahu Exp $ 
 
 all: powermail.txt powermail.pdf html/index.html html.tar.gz
 
 
-clean:
+clean distclean:
 	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html
 
-html/index.html: powermail.sgml
+html/index.html: powermail.db
 	db2html -o html $<
 
 html.tar.gz: html/index.html
