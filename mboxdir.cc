@@ -1,6 +1,6 @@
 /* Copyright 2001 Netherlabs BV, bert.hubert@netherlabs.nl. See LICENSE 
    for more information.
-   $Id: mboxdir.cc,v 1.1 2002-12-04 13:46:38 ahu Exp $  */
+   $Id: mboxdir.cc,v 1.1.1.1 2002-12-04 13:46:38 ahu Exp $  */
 #include <stdio.h>
 #include <unistd.h>
 #include <iostream>

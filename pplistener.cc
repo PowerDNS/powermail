@@ -219,7 +219,7 @@ int PPListenerMain(int argc, char **argv)
       exit(0);
     }
     if(args().commandGiven("version")) {
-      cerr<<"pplistener version "<<VERSION<<". This is $Id: pplistener.cc,v 1.1 2002-12-04 13:46:43 ahu Exp $"<<endl;
+      cerr<<"pplistener version "<<VERSION<<". This is $Id: pplistener.cc,v 1.1.1.1 2002-12-04 13:46:43 ahu Exp $"<<endl;
       exit(0);
     }
     if(args().commandGiven("make-config")) {

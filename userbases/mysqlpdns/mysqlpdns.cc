@@ -1,4 +1,4 @@
-// $Id: mysqlpdns.cc,v 1.1 2002-12-04 13:47:01 ahu Exp $
+// $Id: mysqlpdns.cc,v 1.1.1.1 2002-12-04 13:47:01 ahu Exp $
 
 #include "mysqlpdns.hh"
 #include "logger.hh"

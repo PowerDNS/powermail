@@ -205,7 +205,7 @@ int PowerImapMain(int argc, char **argv)
     }
     args().preparseArgs(argc, argv,"version");
     if(args().commandGiven("version")) {
-      cerr<<"powerimap version "<<VERSION<<". This is $Id: powerimap.cc,v 1.1 2002-12-04 13:46:43 ahu Exp $"<<endl;
+      cerr<<"powerimap version "<<VERSION<<". This is $Id: powerimap.cc,v 1.1.1.1 2002-12-04 13:46:43 ahu Exp $"<<endl;
       exit(0);
     }
 

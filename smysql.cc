@@ -1,6 +1,6 @@
 /* Copyright 2001 Netherlabs BV, bert.hubert@netherlabs.nl. See LICENSE 
    for more information.
-   $Id: smysql.cc,v 1.1 2002-12-04 13:46:38 ahu Exp $  */
+   $Id: smysql.cc,v 1.1.1.1 2002-12-04 13:46:38 ahu Exp $  */
 #include "smysql.hh"
 #include <string>
 #include <iostream>

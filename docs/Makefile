@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2002-12-04 13:46:46 ahu Exp $ 
+# $Id: Makefile,v 1.1.1.1 2002-12-04 13:46:46 ahu Exp $ 
 
 all: powermail.txt powermail.pdf html/index.html html.tar.gz
 

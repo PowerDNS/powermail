@@ -218,7 +218,7 @@ int PowerPopMain(int argc, char **argv)
     }
     args().preparseArgs(argc, argv,"version");
     if(args().commandGiven("version")) {
-      cerr<<"powerpop version "<<VERSION<<". This is $Id: powerpop.cc,v 1.1 2002-12-04 13:46:37 ahu Exp $"<<endl;
+      cerr<<"powerpop version "<<VERSION<<". This is $Id: powerpop.cc,v 1.1.1.1 2002-12-04 13:46:37 ahu Exp $"<<endl;
       exit(0);
     }
 

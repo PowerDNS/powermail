@@ -1,6 +1,6 @@
 //
 // File    : mysqlpdns.hh
-// Version : $Id: mysqlsimplepdns.hh,v 1.1 2002-12-04 13:47:01 ahu Exp $
+// Version : $Id: mysqlsimplepdns.hh,v 1.1.1.1 2002-12-04 13:47:01 ahu Exp $
 // Project : Express Deux
 //
 

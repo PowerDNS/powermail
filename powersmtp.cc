@@ -229,7 +229,7 @@ int PowerSmtpMain(int argc, char **argv)
     }
 
     if(args().commandGiven("version")) {
-      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.1 2002-12-04 13:46:41 ahu Exp $"<<endl;
+      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.1.1.1 2002-12-04 13:46:41 ahu Exp $"<<endl;
       exit(0);
     }
 
