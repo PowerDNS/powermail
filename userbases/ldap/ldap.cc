@@ -83,6 +83,7 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
   else if(d_map.count(""))
     base=d_map[""];
   else {
+    L<<Logger::Notice<<"Unable to map domain '"<<domain<<"' to a search base - perhaps (re)configure ldap-domain-map?"<<endl;
     error="No such domain known";
     return 1;
   }

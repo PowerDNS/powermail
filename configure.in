@@ -3,7 +3,11 @@ AC_INIT(pplistener.cc)
 AM_INIT_AUTOMAKE(powermail, 1.5.1)
 AC_PREFIX_DEFAULT(/usr/local)
 dnl AC_SYSCONFDIR_DEFAULT(/etc/powermail)
-CXXFLAGS="-Wall -pthread -O2"
+if test -z "$CXXFLAGS"
+then
+	CXXFLAGS="-Wall -pthread -O2"
+fi
+
 AM_CONFIG_HEADER(config.h pplistenerdefaults.h)
 AC_PROG_CC
 AC_PROG_CXX
@@ -69,7 +73,7 @@ AC_ARG_WITH(mysql,
     [MYSQL_lib_check="$withval/lib/mysql $with_mysql/lib"
 MYSQL_inc_check="$withval/include/mysql"],
     [MYSQL_lib_check="/usr/local/mysql/lib/mysql /usr/local/lib/mysql /opt/mysql/lib/mysql /usr/lib/mysql /usr/local/mysql/lib /usr/local/lib /opt/mysql/lib /usr/lib"
-MYSQL_inc_check="/usr/local/mysql /usr/local /opt/mysql /usr"])
+MYSQL_inc_check="/usr/local/mysql/include /usr/include/mysql /usr/include /opt/mysql/include"])
 
 AC_ARG_WITH(mysql-lib,
     [  --with-mysql-lib=<path> directory path of MySQL library installation],
@@ -110,9 +114,9 @@ esac
 AC_MSG_CHECKING([for MySQL include directory])
 MYSQL_incdir=
 for m in $MYSQL_inc_check; do
-        if test -d "$m/include/mysql" && test -f "$m/include/mysql/mysql.h"
+        if test -f "$m/mysql.h"
         then
-                MYSQL_incdir="$m/include"
+                MYSQL_incdir="$m"
                 break
         fi
 done
@@ -123,6 +127,7 @@ fi
 
 case "$MYSQL_incdir" in
   /* ) ;;
+  
   * )  AC_MSG_ERROR([The MySQL include directory ($MYSQL_incdir) must be an absolute path.]) ;;
 esac
 

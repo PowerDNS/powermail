@@ -12,7 +12,7 @@
       </affiliation>
     </author>
     
-    <PubDate>v1.0 $Date: 2002-12-04 13:46:46 $</PubDate>
+    <PubDate>v1.0 $Date: 2002-12-29 16:10:58 $</PubDate>
     
     <Abstract>
       <para>	
@@ -225,7 +225,119 @@
     <para>
        Before proceeding, you should check the release notes for your PowerMail version, as specified in the name of the distribution file. 
     </para>
-    <sect1 id="release-1-4"><title>1.4</title>
+    <sect1 id="release-1-6"><title>Version 1.6</title>
+      <para>
+	Polished open source release, with help from the community. Large amount of changes and very important bugfixes. For reasons which are as 
+	yet unclear, PowerMail has stability issues with gcc "2.96" on multi processor systems. The use of gcc 3.2.1 is advised!
+      </para>
+      <para>
+	Many thanks to Stef van Dessel for helping to make PowerMail rock solid and able to deliver a million messages in a 250 messages/second
+	benchmark run (on a dual Pentium III 600MHz running RedHat `Phoebe').
+      </para>
+      <para>
+	Bugs fixed:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Oops - all threads share one common current working directory, pplistener assumed each instance would have its own. Upgrade yesterday.
+	      This could probably not lead to miss delivered email but perhaps to failed deliveries however.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      SMTP remotes can now give an unadorned HELO (Marcello Scacchetti)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      pplistener did not honor the <command>config-dir</command> setting (spotted by Stef van Dessel).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      SMTP banner had ESMTP in the wrong place.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Non-existing addresses now result in the proper error code (Marcello Scacchetti)
+	    </para>
+	  </listitem>	  
+	  <listitem>
+	    <para>
+	      Compiling the 'textbase' userbase accidentally required MySQL include files (spotted by Stef van Dessel)
+	    </para>
+	  </listitem>	  
+	  <listitem>
+	    <para>
+	      Makefile now honors directory ./configuration directives (spotted by Florus Both)
+	    </para>
+	  </listitem>	  
+	  <listitem>
+	    <para>
+	      Unnecessary use of -lmysqlclient_r instead of -lmysqlclient (spotted by Florus Both)
+	    </para>
+	  </listitem>	  
+	  <listitem>
+	    <para>
+	      Potential crashes due to use of gethostbyname instead of gethostbyname_r (spotted by Stef van Dessel)
+	    </para>
+	  </listitem>	  
+	</itemizedlist>
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Generic LDAP support. The aim is to get PowerMail to understand the vast majority of LDAP layouts people use. This
+	      version can probably connect to 'most', please let us know if you can't fit PowerMail to your schema, and we'll add 
+	      features to cover your needs as well (with suggestions by: Stef van Dessel, Bart Smit, Oscar Steenmann)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Hostname can now be specified in the configuration (Marcello Scacchetti)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      The SMTP banner can now be configured (Marcello Scachetti/bert hubert)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      PowerSMTP and PowerPOP init.d scripts now have 'monitor mode' which is great for debugging
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Console loglevel can now be tuned
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	Improvements:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Better feedback if another mailer is already running.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      PowerSMTP 'Received' lines now have a proper timestamp.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para> 
+    </sect1>
+    <sect1 id="release-1-5"><title>Version 1.5</title>
+      <para>
+	Rough open source release. 
+      </para>
+    </sect1>
+    <sect1 id="release-1-4"><title>Version 1.4</title>
       <para>
 	This version now runs on the toplevel domain .TK, replacing the earlier legacy email forwarding system. A lot of work has been done
 	to handle the 1000+ concurrent connections sometimes needed to handle .TK traffic.
@@ -235,7 +347,7 @@
 	it to work with many different schemas.
       </para>
     </sect1>
-    <sect1 id="release-1-3-1"><title>1.3.1</title>
+    <sect1 id="release-1-3-1"><title>Version 1.3.1</title>
       <para>
 	Important upgrade. This version had the ability to saturate a MySQL server with connections under certain circumstances. PostgreSQL users are 
 	not affected by this bug. 
@@ -250,7 +362,7 @@
 	</itemizedlist>
       </para>
     </sect1>
-    <sect1 id="release-1-3"><title>1.3</title>
+    <sect1 id="release-1-3"><title>Version 1.3</title>
       <para>
 	This release fixes some RFC violations and implements some of the optional bits. 
       </para>
@@ -287,7 +399,7 @@
 	</itemizedlist>
       </para>
     </sect1>
-    <sect1 id="release-1-2-0"><title>1.2.0</title>
+    <sect1 id="release-1-2-0"><title>Version 1.2.0</title>
       <para>
 	This is a big release. We salute Julian Seward for his wonderful work on 
 	<ulink url="http://developer.kde.org/~sewardj/">the Valgrind memory debugger</ulink>. PowerMail is now a better product for it.
@@ -365,7 +477,7 @@
 	</itemizedlist>
       </para>
     </sect1>
-    <sect1 id="release-1-1-0"><title>1.1.0</title>
+    <sect1 id="release-1-1-0"><title>Version 1.1.0</title>
       <para>
 	This release adds crypted password support, bringing the number of password schemes to three: plaintext, crypt and md5.
 	See <xref linkend="password.schemas"> for details and important information for deployments with plaintext passwords starting
@@ -400,7 +512,7 @@
       </para>
     </sect1>
 
-    <sect1 id="release-1-0-0"><title>1.0.0</title>
+    <sect1 id="release-1-0-0"><title>Version 1.0.0</title>
       <para>
 	First public release of PowerMail. Changes since less widely released versions:
       </para>
@@ -1568,8 +1680,34 @@ address "sales@example.com" {
 
     <sect1><title>LDAP</title>
       <para>
-	Email <email>pdns@powerdns.com</email> if you are interested in an LDAP userbase, in which case we will expedite its development.
+	Available as of 1.5.1 and expected to evolve somewhat in following releases. There is a vast range of LDAP schemas in use, PowerMail
+	strives to be able to talk to most of those with only configuration file tuning.
       </para>
+      <para>
+	To verify passwords, PowerPOP tries to bind to a record, leaving the actual password check to the LDAP server. Based on the domain 
+	specified by the user, a base is chosen to bind with.
+      </para>
+      <para>
+	Settings:
+	<variablelist>
+	  <varlistentry>
+	    <term>ldap-host</term>
+	    <listitem>
+	      <para>
+		LDAP host(s) to connect to. Separate by spaces. Defaults to 127.0.0.1.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>ldap-domain-map</term>
+	    <listitem>
+	      <para>
+		A space separated list of domain:base pairs. For example, "ds9a.nl:ou=People,dc=ds9a,dc=nl" would 
+		indicate that the mailboxes in the 'ds9a.nl' domain are to be searched for in ou=People,dc=ds9a,dc=nl.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
     </sect1>
   </chapter>
   <chapter><title>In depth technicalities</title>

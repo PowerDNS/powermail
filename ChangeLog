@@ -1,18 +1,20 @@
-Changes since 1.4:
-        - added LDAP support
-	- pplistener ignored config-dir (stef)
-	- all threads share one cwd (oops)
+Changes since 1.5:
+feat    - added LDAP support
+bug	- pplistener ignored config-dir (stef)
+bug	- all threads share one cwd (oops)
 	  (could lead to crashes or theoretically to mail being delivered to the wrong users!)
-	- add way to override hostname (Marcello Scacchetti)
-	- support HELO without host (Marcello Scacchetti)
-	- give proper error code on non-existent email address (Marcello Scacchetti)
-	- add greetings-banner configuration (Marcello Scacchetti/bert hubert)
-	- banner now has 'ESMTP' in the right place
-	- improved startup feedback ('a mailer is already running..')
-	- textbase accidentally had a mysql dependency	
-	- moved one gethostbyname to gethostbyname_r
-	- improved Makefile to honor directory preferences (spotted by Florus Both)
-	- PowerSMTP 'received' lines now have a timestamp
+feat	- add way to override hostname (Marcello Scacchetti)
+feat	- support HELO without host (Marcello Scacchetti)
+bug	- give proper error code on non-existent email address (Marcello Scacchetti)
+feat	- add greetings-banner configuration (Marcello Scacchetti/bert hubert)
+bug	- banner now has 'ESMTP' in the right place
+impr	- improved startup feedback ('a mailer is already running..')
+bug	- textbase accidentally had a mysql dependency	
+bug	- moved one gethostbyname to gethostbyname_r
+bug	- improved Makefile to honor directory preferences (spotted by Florus Both)
+impr	- PowerSMTP 'received' lines now have a timestamp
+feat	- monitor mode
+feat	- loglevel can be tuned
 	
 Changes since 1.2:
 	- improved some logging
