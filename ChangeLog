@@ -4,6 +4,7 @@ changes since 1.6:
 	- added ldap-forwarding-attribute
 	- --help display was somewhat screwed (Ruben d'Arco)
 	- run-as-uid/run-as-gid broken (Ruben d'Arco)
+	- TOP cleaned up (Ruben d'Arco)
 
 Changes since 1.5:
 feat    - added LDAP support

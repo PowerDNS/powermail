@@ -16,6 +16,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "userbase.hh"
+#include "misc.hh"
+#include "md5.hh"
 #include <iostream>
 
 #ifdef __FreeBSD__
@@ -30,6 +32,31 @@ map<string,UserBase*(*)()>& UserBaseRepository()
   return repo;
 }
 
+/** md5Match
+ * This is the password matcher for a APOP request.
+*/ 
+bool UserBase::md5Match(const string &challenge,const string &supplied, const string &db) 
+{
+  // check if there actually IS a password in the database.
+  if (db.empty())
+    return false;
+  
+  string our_digit=challenge;
+  
+  // check if it's a normal password...
+  if (db.find("{md5}") == string::npos && db.find("{crypt}") == string::npos) {
+    if (db.find("{plain}") == string::npos) 
+      our_digit=our_digit+db;
+    else
+      our_digit=our_digit+db.substr(7);
+    
+    our_digit=md5calc((unsigned char *)our_digit.c_str(),our_digit.size());
+    return our_digit==supplied;
+  }
+  return false;  
+}
+
+
 /** pwmatch needs to check if the plaintext supplied password matches something 
     in the database. The database can contain:
     plaintext
@@ -38,24 +65,28 @@ map<string,UserBase*(*)()>& UserBaseRepository()
 */
 bool UserBase::pwMatch(const string &supplied, const string &db)
 {
-  if(db.empty())
+  // check if there actually IS a password in the database.
+  if (db.empty())
     return false;
-  if(db[0]!='{' || (db[0]=='{' && db.find('}')==string::npos))   // database does not start with {, or does but there is no }
-    return supplied==db;
   
-  if(!db.find("{plain}"))
-    return supplied==db.substr(db.find('}')+1);
-
-  if(
-     (!db.find("{crypt}") || !db.find("{md5}")) 
-     && 
-     db.length()>12) {
-
-    char *match=strdup(crypt(supplied.c_str(), db.substr(db.find('}')+1).c_str()));
-    
-    bool matched=(match==db.substr(db.find('}')+1));
+  // check if it's a normal password...
+  if (db.find("{md5}") == string::npos && db.find("{crypt}") == string::npos) {
+    if (db.find("{plain}") == string::npos) {
+      return supplied==db;
+    } else {
+      return supplied==(db.substr(7));
+    }
+  }
+ 
+  string tmp;
+  if (db.find("{md5}") != string::npos) {
+    tmp = md5calc((unsigned char *)supplied.c_str(),supplied.size());
+    return (strncmp(tmp.c_str(),db.substr(5).c_str(),strlen(db.substr(5).c_str())) == 0);
+  } else {
+    tmp=db.substr(7);
+    char *match=strdup(crypt(supplied.c_str(), tmp.c_str()));
+    bool matched=(match==db.substr(7));
     free(match);
     return matched;
   }
-  return false;
 }

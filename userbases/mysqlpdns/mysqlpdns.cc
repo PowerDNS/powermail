@@ -15,7 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// $Id: mysqlpdns.cc,v 1.2 2002-12-04 16:32:50 ahu Exp $
+// $Id: mysqlpdns.cc,v 1.3 2003-02-04 12:35:26 ahu Exp $
 
 #include "mysqlpdns.hh"
 #include "logger.hh"
@@ -79,7 +79,7 @@ bool MySQLPDNSUserBase::connected()
 }
 
 /** returns -1 for a database error, 0 for ok */
-int MySQLPDNSUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect)
+int MySQLPDNSUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect, const string &challenge)
 {
    exists=pwcorrect=false;
    int ret = -1; // temporary failure by default
@@ -128,7 +128,10 @@ int MySQLPDNSUserBase::mboxData(const string &mbox, MboxData &md, const string &
 	    md.mbQuota   = atoi(result[0][1].c_str());
 	    md.isForward = false;
 	    md.fwdDest   = "";
-	    pwcorrect=pwMatch(pass,result[0][2]);
+	    if (challenge.empty())
+  	      pwcorrect=pwMatch(pass,result[0][2]);
+	    else 
+	      pwcorrect=md5Match(challenge,pass,result[0][2]);
 	    exists=true;
 	 }
       }

@@ -134,11 +134,8 @@ public:
 	if(!d_max || d_created<d_max) {
 	  d_created++;
 	  d_available.push_front((*d_gfp)());
-
 	  sem_post(&d_sem);
 	}
-	else
-	  ;
       }
     }
 

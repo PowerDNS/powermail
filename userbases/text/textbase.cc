@@ -124,7 +124,7 @@ bool TextUserBase::connected()
 }
 
 /** returns -1 for a database error, 0 for ok */
-int TextUserBase::mboxData(const string &mbox, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect)
+int TextUserBase::mboxData(const string &mbox, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect,const string &challenge)
 {
   int ret=-1; // temporary failure by default
   exists=pwcorrect=false;
@@ -140,7 +140,10 @@ int TextUserBase::mboxData(const string &mbox, MboxData &md, const string &passw
       md.isForward=!i->forward.empty();
       md.fwdDest=i->forward;
       exists=true;
-      pwcorrect=pwMatch(password,i->password);
+      if (challenge.empty()) 
+        pwcorrect=pwMatch(password,i->password);
+      else 
+	pwcorrect=md5Match(challenge,password,i->password);
       return 0;
     }
   }

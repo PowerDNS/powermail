@@ -67,7 +67,7 @@ LDAPUserBase::~LDAPUserBase()
 }
 
 /** returns -1 for a database error, 0 for 'exists' and 1 for 'does not exist */
-int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect)
+int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect,const string &challenge)
 {
   exists=pwcorrect=false;
 

@@ -18,6 +18,8 @@
 #include <string>
 using namespace std;
 
+string md5calc(unsigned char *,int len);
+char *Cryptcalc(const string &s);
 void stripLine(string &line);
 string getHostname();
 void cleanSlashes(string &str);

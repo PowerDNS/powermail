@@ -15,7 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// $Id: oracle.cc,v 1.1 2002-12-04 16:32:50 ahu Exp $
+// $Id: oracle.cc,v 1.2 2003-02-04 12:35:26 ahu Exp $
 
 #include "logger.hh"
 #include "argsettings.hh"
@@ -65,7 +65,7 @@ OracleUserBase::~OracleUserBase()
 }
 
 /** returns -1 for a database error, 0 for ok */
-int OracleUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect)
+int OracleUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect, const string &challenge)
 {
    int theResult = -1;
    error="Temporary database error (unspecified)";

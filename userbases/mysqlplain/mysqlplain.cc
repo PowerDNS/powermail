@@ -74,8 +74,9 @@ bool MySQLPlainUserBase::connected()
   return !!d_db;
 }
 
+
 /** returns -1 for a database error, 0 for 'exists' and 1 for 'does not exist */
-int MySQLPlainUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect)
+int MySQLPlainUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect, const string &challenge)
 {
   int ret=-1; // temporary failure by default
   exists=pwcorrect=false;
@@ -96,7 +97,10 @@ int MySQLPlainUserBase::mboxData(const string &mbox, MboxData &md, const string 
 	  md.fwdDest=result[0][2];
 	else {
 	  md.fwdDest="";
-	  pwcorrect=pwMatch(pass,result[0][3]);
+	  if (challenge.empty())
+            pwcorrect=pwMatch(pass,result[0][3]);
+	  else 
+	    pwcorrect=md5Match(challenge,pass,result[0][3]);
 	}
 	exists=true;
       }

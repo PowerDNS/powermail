@@ -18,11 +18,39 @@
 #include "misc.hh"
 #include "logger.hh"
 #include <iostream>
+#include <stdio.h>
 #include <fstream>
 #include <unistd.h>
 #include <sstream>
 #include <errno.h>
 #include <cstring>
+#include <crypt.h>
+#include "md5.hh"
+
+string md5calc (unsigned char *s,int len)
+{
+  int i;
+  MD5_CTX context;
+  unsigned char digest[16];
+  char ascii_digest [33];
+  MD5Init(&context);
+  MD5Update(&context, s, len);
+  MD5Final(digest, &context);
+  for (i = 0;  i < 16;  i++)
+    sprintf(ascii_digest+2*i, "%02x", digest[i]);
+  return(ascii_digest);
+}
+
+char *Cryptcalc(const string &s)
+{
+  static char salts[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
+  char salt[3];
+  srandom(time(0));
+  salt[0]=salts[random()%sizeof(salts)];
+  salt[1]=salts[random()%sizeof(salts)];
+  salt[2]=0;
+  return crypt(s.c_str(),salt);
+}
 
 
 void cleanSlashes(string &str)

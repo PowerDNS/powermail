@@ -22,6 +22,7 @@
 #include "misc.hh"
 #include <sys/types.h>
 #include <dirent.h>
+#include <time.h>
 #include <syslog.h>
 #include <sys/stat.h>
 #include <fcntl.h> 
@@ -109,6 +110,89 @@ bool PopSession::topCommands(const string &line, string &response, quit_t &quit)
 
 bool PopSession::loginCommands(const string &line, string &response, quit_t &quit)
 {
+  if(!line.find("APOP ")) {
+    if(d_login) {
+      response="-ERR Already logged in";
+      return true;
+    }
+
+    d_user=line.substr(5,(line.find(" ",5)-5));
+    string digit = line.substr(line.find(" ",5)+1); 
+    if (d_user.empty()) {
+      response="-ERR Too few parameters (no username and digit)";
+      return true;
+    }
+    if (digit.empty()) {
+      response="-ERR Too few parameters (no digit)";
+      return true;
+    }
+    
+    string::size_type pos=d_user.find("%");
+    if (pos!=string::npos)
+      d_user[pos]='@';
+   
+    bool exists=false, pwcorrect=false;
+    MboxData md;
+    int res;
+
+    string tries[2];
+    tries[0]=d_user;
+    tries[1]="*";
+    unsigned int offset=d_user.find('@');
+    if(offset!=string::npos) {
+      tries[1]+=d_user.substr(offset);
+    }
+    else
+      tries[1]="*@"+d_user;
+
+    string *dest;
+    for(dest=tries;dest!=&tries[2];++dest) {
+      PoolClass<UserBase>::handle ubh=UBP->get();
+      res=ubh.d_thing->mboxData(*dest,md,digit,response, exists, pwcorrect,d_challenge); // sets response!
+      if(res<0) {
+	response="-ERR 1"+response;
+	sleep(1); // thwart dictionary attacks
+	return 1;
+      }
+      if(exists) {
+	d_user=md.canonicalMbox; // we may have been renamed by the userbase!
+	break;
+      }
+    }
+
+    if(exists && *dest!=d_user) {
+      L<<Logger::Warning<<"Fallback match of '"<<d_user<<"' as '"<<*dest<<"'"<<endl;
+    }
+
+    response="-ERR Invalid credentials (wrong username or password?)";
+    if(exists && pwcorrect) {
+      L<<Logger::Warning<<"Mailbox '"<<d_user<<"' logged in"<<endl;
+      d_login=true;
+
+      
+      try {
+	d_megatalker=0;
+	d_megatalker=new MegaTalker;
+      }
+      catch(MegaTalkerException &e) {
+	L<<"Fatal error connecting to MegaTalker: "<<e.getReason()<<endl;
+	response="-ERR Temporary error connecting to backends";
+	return 1;
+      }
+      if(scanDir(response))
+	return false;
+
+      response=makeStatResponse();
+    }
+    else if(exists && !pwcorrect) {
+      L<<Logger::Warning<<"Mailbox '"<<d_user<<"' exists but tried wrong password"<<endl;
+    }
+    else
+      L<<Logger::Warning<<"No such mailbox '"<<d_user<<"'"<<endl;
+    return 1;
+  }
+
+	
   if(!line.find("USER ")) {
     if(d_login) {
       response="-ERR Already logged in";
@@ -150,7 +234,7 @@ bool PopSession::loginCommands(const string &line, string &response, quit_t &qui
     string *dest;
     for(dest=tries;dest!=&tries[2];++dest) {
       PoolClass<UserBase>::handle ubh=UBP->get();
-      res=ubh.d_thing->mboxData(*dest,md,line.substr(5), response, exists, pwcorrect); // sets response!
+      res=ubh.d_thing->mboxData(*dest,md,line.substr(5), response, exists, pwcorrect, ""); // sets response!
       if(res<0) {
 	response="-ERR "+response;
 	sleep(1); // thwart dictionary attacks
@@ -270,9 +354,12 @@ bool PopSession::restCommands(const string &line, string &response, quit_t &quit
       return 1;
     }
     try {
+      if (! d_msgData[num].d_deleted) {
       d_megatalker->blastMessageFD(d_msgData[num].d_fname,d_msgData[num].d_size,d_clisock);
       d_retrieved++;
       response="";
+      } else 
+        response="-ERR Message was deleted";
     }
     catch(MegaTalkerException &e) {
       response="-ERR Retrieving message, "+e.getReason();
@@ -281,7 +368,7 @@ bool PopSession::restCommands(const string &line, string &response, quit_t &quit
     return 1;
   }
 
-  if(command=="TOP" && numArgs>1 && numArgs<=3) {
+  if(command=="TOP" && numArgs>=1 && numArgs<=3) {
     if(numArgs<2) {
       response="-ERR Missing parameter";
       return true;
@@ -292,6 +379,10 @@ bool PopSession::restCommands(const string &line, string &response, quit_t &quit
 
     if(num>=d_msgData.size()) {
       response="-ERR Number out of range";
+      return 1;
+    }
+    if (d_msgData[num].d_deleted) {
+      response="-ERR Message was deleted";
       return 1;
     }
 
@@ -357,7 +448,7 @@ bool PopSession::restCommands(const string &line, string &response, quit_t &quit
   }
 
 
-  if(command=="LIST" && numArgs==1) { // FIXME, should also accept a parameter
+  if(command=="LIST" && numArgs==1) {
     response="+OK\r\n";
     ostringstream o;
     for(msgData_t::const_iterator i=d_msgData.begin();i!=d_msgData.end();++i) {
@@ -373,10 +464,6 @@ bool PopSession::restCommands(const string &line, string &response, quit_t &quit
     return 1;
   }
 
-  if(!line.find("TOP")) {
-    response="+OK";
-    return 1;
-  }
   return 0;
 }
 
@@ -455,7 +542,7 @@ bool PopSession::giveLine(string &line, string &response, quit_t &quit, int &fd)
   if(topCommands(line, response, quit)) // RSET, HELP, QUIT, NOOP
     return true;
 
-  if(loginCommands(line,response,quit))
+  if(loginCommands(line,response,quit)) // USER, PASS, and later APOP
     return true;
 
   if(restCommands(line,response,quit,fd))
@@ -468,5 +555,6 @@ bool PopSession::giveLine(string &line, string &response, quit_t &quit, int &fd)
 
 string PopSession::getBanner()
 {
-  return "+OK "+getHostname()+"\r\n";
+  d_challenge="<"+itoa(getpid())+"."+itoa(time(0))+"@"+getHostname()+">";
+  return "+OK POP3 server ready "+d_challenge+"\r\n"; 
 }

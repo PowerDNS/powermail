@@ -17,7 +17,7 @@
 */
 //
 // File    : mysqlpdns.hh
-// Version : $Id: mysqlsimplepdns.hh,v 1.2 2002-12-04 16:32:50 ahu Exp $
+// Version : $Id: mysqlsimplepdns.hh,v 1.3 2003-02-04 12:35:26 ahu Exp $
 // Project : Express Deux
 //
 
@@ -42,7 +42,7 @@ class MySQLSimplePDNSUserBase : public UserBase
   static UserBase *maker();
   ~MySQLSimplePDNSUserBase();
 
-  int mboxData(const string &mbox, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect);
+  int mboxData(const string &mbox, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect,const string &challenge);
 
   bool connected(); 
   

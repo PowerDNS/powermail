@@ -17,7 +17,7 @@
 */
 //
 // File    : mysqlpdns.hh
-// Version : $Id: mysqlpdns.hh,v 1.2 2002-12-04 16:32:50 ahu Exp $
+// Version : $Id: mysqlpdns.hh,v 1.3 2003-02-04 12:35:26 ahu Exp $
 //
 
 #ifndef MYSQLUSERBASE_HH
@@ -41,7 +41,7 @@ class MySQLPDNSUserBase : public UserBase
   static UserBase* maker();
   ~MySQLPDNSUserBase();
 
-  int mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect);
+  int mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect,const string &challenge);
   bool connected(); 
   
 private:

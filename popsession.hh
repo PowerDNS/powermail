@@ -51,6 +51,8 @@ private:
   string d_user;
   bool d_login;
   string d_dir;
+  string d_digit;
+  string d_challenge;
   
   struct MsgDatum {
     string d_fname;

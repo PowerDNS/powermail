@@ -32,6 +32,8 @@
 #include "argsettings.hh"
 #include "logger.hh"
 #include "common.hh"
+#include "md5.hh"
+
 
 bool degraded(false);
 unsigned char maxBackendLen;
@@ -190,7 +192,7 @@ void dbLookup(const string &mbox)
   MboxData md;
   string response;
   bool exists=false, pwcorrect;
-  int res=UB->mboxData(mbox,md,"",response,exists,pwcorrect);
+  int res=UB->mboxData(mbox,md,"",response,exists,pwcorrect,"");
   if(res<0)
     cout<<"(Database error: "<<response<<")";
   else if(!res && exists) {
@@ -225,7 +227,7 @@ void findOrphans(vector<string> &orphans)
     MboxData md;
     string response;
     bool exists=false,pwcorrect;
-    if(UB->mboxData(i->first,md,"",response,exists,pwcorrect)==0 && !exists)
+    if(UB->mboxData(i->first,md,"",response,exists,pwcorrect,"")==0 && !exists)
       orphans.push_back(i->first);
   }
 }  
@@ -479,15 +481,7 @@ void doMD5(const vector<string>&words)
     cerr<<"crypt needs exactly one parameter - the password to crypt"<<endl;
     exit(1);
   }
-  char salt[12];
-  memset(salt,0,12);
-  srandom(time(0));
-  strcpy(salt,"$1$");
-  int length=(1+random())%8;
-  for(int n=0;n<length;++n)
-    salt[3+n]=salts[random()%sizeof(salts)];
-
-  cout<<"{md5}"<<crypt(words[1].c_str(),salt)<<endl;
+  cout<<"{md5}"<<md5calc((unsigned char *)words[1].c_str(),words[1].size())<<endl;
 }
 
 

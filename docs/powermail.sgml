@@ -12,7 +12,7 @@
       </affiliation>
     </author>
     
-    <PubDate>v1.0 $Date: 2002-12-31 12:46:21 $</PubDate>
+    <PubDate>v1.0 $Date: 2003-02-04 12:35:26 $</PubDate>
     
     <Abstract>
       <para>	
@@ -225,6 +225,57 @@
     <para>
        Before proceeding, you should check the release notes for your PowerMail version, as specified in the name of the distribution file. 
     </para>
+    <sect1 id="release-1-7"><title>Version 1.7</title>
+      <para>
+	<warning>
+	  <para>
+	    This release may break setups using {md5} passwords. Setups using {crypt}$1$ style MD5 hashes should see no problems.
+	    Let us know.
+	  </para>
+	</warning>
+      <para>
+	This is the "Ruben d'Arco release" who did almost all the coding. Changes:
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Fixes for compiling on older gcc releases (Ruben d'Arco)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <command>pptool</command> ignored SYSCONFDIR and only looked in <filename>/etc/powermail</filename> (Ruben d'Arco)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added support for the reading a forwarding address from LDAP (ldap-forwarding-attribute).
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <command>--help</command> output was ugly (Ruben d'Arco)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <command>run-as-uid/run-as-gid</command> was broken (Ruben d'Arco)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      TOP command did not entirely do the right thing. Some other commands did not hide administratively deleted messages
+	      (Ruben d'Arco)
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      APOP support! See <xref linkend="APOP.SUPPORT"> (Ruben d'Arco).
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect1>
+
     <sect1 id="release-1-6"><title>Version 1.6</title>
       <para>
 	Polished open source release, with help from the community. Large amount of changes and very important bugfixes. For reasons which are as 
@@ -1246,8 +1297,7 @@ Connection closed by foreign host.
       </para>
       <para>
 	PowerMail 1.0.0 only supported plaintext passwords and these did not need to be prefixed in any way. So, to have a
-	user with password 's3cr3t!', any userbase would contain just 's3cr3t!'. As of version 1.1.0 however, multiple schemas are
-	available.
+	user with password 's3cr3t!', any userbase would contain just 's3cr3t!'. As of version 1.1.0 however, multiple schemas are available.
       </para>
       <para>
 	The schema is indicated by prefixing the password or hash in the database with a marker. For example, the new preferred way to
@@ -1280,6 +1330,61 @@ Connection closed by foreign host.
       <para>
 	In the near future, '{sha1}' is also expected to make an appearance.
       </para>
+      <sect2 id="APOP.SUPPORT"><title>APOP Support</title>
+        <para>
+          As of version 1.7 PowerPOP has (some) support for the APOP pop3 command. You can read about the APOP command in 
+	  <ulink url="http://www.cis.ohio-state.edu/cgi-bin/rfc/rfc1939.html#page-15">rfc 1939</ulink> and 
+	  <ulink url="http://ist-socrates.berkeley.edu/Help/Email/Apop/apop_faq.html">here</ulink>.
+	</para>
+	<para>
+	  APOP is a method of sending the password encrypted (md5) over the network, so password sniffing can not be done but
+	  the e-mail retrieved from PowerPOP wil not be encrypted in any way. APOP it is not completely secure, brute force hacking is 
+	  still posible!
+	</para>
+	<para>
+	  If you're familiar with encryption methods, you might have noticed that the POP3 server would need the password for the user in 
+	  plain text to support APOP. Since PowerMail has 3 password schemas (see <xref linkend="password.schemas">), there is a problem.
+	  The crypt and md5 method's can NOT be decrypted, and thus can not be used in combination with APOP.
+	</para>
+	<para>
+	  <warning>
+	    <para>
+	      Only the plain text password schema works with APOP.
+	    </para>
+	  </warning>
+	</para>
+	<para>
+	  There is still work to be done on many of the Userbases. Authorization of a client is in the Userbase, and APOP relies on that. 
+	  Not all userbases are suppored, and currently only one is tested.
+	  <table>
+	    <title> Supported userbases</title>
+            <tgroup cols=3>
+	      <tbody>
+	        <row>
+		  <entry>Userbase</entry><entry>Tested</entry><entry>Supported</entry>
+		</row>
+	        <row>
+		  <entry>MySQL plain</entry><entry>Yes</entry><entry>Yes</entry>
+		</row>
+	        <row>
+		  <entry>MySQL PowerDNS</entry><entry>No</entry><entry>Yes</entry>
+		</row>
+	        <row>
+		  <entry>Generic PostgreSQL</entry><entry>No</entry><entry>Yes</entry>
+		</row>
+	        <row>
+		  <entry>Text based</entry><entry>No</entry><entry>Yes</entry>
+		</row>
+	        <row>
+		  <entry>Radius</entry><entry>No</entry><entry>No</entry>
+		</row>
+	        <row>
+		  <entry>LDAP</entry><entry>No</entry><entry>No</entry>
+		</row>
+              </tbody>
+	    </tgroup>
+	  </table>
+      </sect2>
     </sect1>
     <sect1 id="forwarding"><title>Forwarding</title>
     <?dbhtml filename="forwarding.html">

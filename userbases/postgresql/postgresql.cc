@@ -109,7 +109,7 @@ string PostgreSQLUserBase::sqlEscape(const string &name)
 
 
 /** returns -1 for a database error, 0 for 'exists' and 1 for 'does not exist */
-int PostgreSQLUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect)
+int PostgreSQLUserBase::mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect, const string &challange)
 {
   exists=pwcorrect=false;
   error="Temporary database error (not connected)";
@@ -134,7 +134,10 @@ int PostgreSQLUserBase::mboxData(const string &mbox, MboxData &md, const string 
       md.fwdDest=d_db->GetValue(0,2);
     else {
       md.fwdDest="";
-      pwcorrect=pwMatch(pass,d_db->GetValue(0,3));
+      if (challenge.empty()) {
+        pwcorrect=pwMatch(pass,d_db->GetValue(0,3));
+      else 
+        pwcorrect=md5Match(challenge,pass,d_db->GetValue(0,3));
     }
     exists=true;
   }

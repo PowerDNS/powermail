@@ -15,7 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// $Id: mysqlsimplepdns.cc,v 1.2 2002-12-04 16:32:50 ahu Exp $
+// $Id: mysqlsimplepdns.cc,v 1.3 2003-02-04 12:35:26 ahu Exp $
 
 #include "mysqlsimplepdns.hh"
 #include "logger.hh"
@@ -81,7 +81,7 @@ bool MySQLSimplePDNSUserBase::connected()
 }
 
 /** returns -1 for a database error, 0 for ok */
-int MySQLSimplePDNSUserBase::mboxData(const string &mbox, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect)
+int MySQLSimplePDNSUserBase::mboxData(const string &mbox, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect, const string &challenge)
 {
    exists=pwcorrect=false;   
 

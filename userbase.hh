@@ -33,11 +33,13 @@ class UserBase
 {
 public:
   static UserBase *maker();
-  virtual int mboxData(const string &label, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect)=0;
+  virtual int mboxData(const string &label, MboxData &md, const string &password, string &error, bool &exists, bool &pwcorrect, const string &challenge)=0;
   virtual ~UserBase(){};
   virtual bool connected()=0;
 protected:
   bool pwMatch(const string &supplied, const string &db);
+  bool md5Match(const string &challenge,const string &supplied, const string &db);
+	
 };
 map<string,UserBase*(*)()>& UserBaseRepository();
 #endif /* USERBASE_HH */
