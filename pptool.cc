@@ -574,7 +574,7 @@ int PPToolMain(int argc, char **argv)
   try {
 
     if(UserBaseRepository()[args().paramString("userbase")])
-      UB=(*UserBaseRepository()["mysqlpdns"])();
+      UB=(*UserBaseRepository()[args().paramString("userbase")])();
     else {
       L<<Logger::Error<<"Unknown userbase '"<<args().paramString("userbase")<<"'"<<endl;
       exit(1);
