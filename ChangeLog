@@ -2,6 +2,8 @@ changes since 1.6:
 	- fixes for older gcc compilers (Ruben d'Arco)
 	- pptool ignored SYSCONFDIR and only did /etc/powermail (Ruben d'Arco)
 	- added ldap-forwarding-attribute
+	- --help display was somewhat screwed (Ruben d'Arco)
+	- run-as-uid/run-as-gid broken (Ruben d'Arco)
 
 Changes since 1.5:
 feat    - added LDAP support

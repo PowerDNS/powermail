@@ -236,7 +236,7 @@ int PPListenerMain(int argc, char **argv)
       exit(0);
     }
     if(args().commandGiven("version")) {
-      cerr<<"pplistener version "<<VERSION<<". This is $Id: pplistener.cc,v 1.3 2002-12-24 20:05:55 ahu Exp $"<<endl;
+      cerr<<"pplistener version "<<VERSION<<". This is $Id: pplistener.cc,v 1.4 2003-01-03 18:09:28 ahu Exp $"<<endl;
       exit(0);
     }
     if(args().commandGiven("make-config")) {
@@ -265,7 +265,7 @@ int PPListenerMain(int argc, char **argv)
   signal(SIGPIPE,SIG_IGN);
   try {
     Server *s=new Server(args().paramAsNum("listen-port"),args().paramString("listen-address"));
-    dropPrivs(args().paramAsNum("uid"),args().paramAsNum("gid"));
+    dropPrivs(args().paramAsNum("run-as-uid"),args().paramAsNum("run-as-gid"));
     
     if(args().switchSet("daemon")) {
       L<<Logger::Info<<"Going to background"<<endl;

@@ -1,6 +1,6 @@
 dnl intro
 AC_INIT(pplistener.cc)
-AM_INIT_AUTOMAKE(powermail, 1.6)
+AM_INIT_AUTOMAKE(powermail, 1.7)
 AC_PREFIX_DEFAULT(/usr/local)
 dnl AC_SYSCONFDIR_DEFAULT(/etc/powermail)
 if test -z "$CXXFLAGS"
