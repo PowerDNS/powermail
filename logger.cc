@@ -115,8 +115,9 @@ Logger& Logger::operator<<(ostream & (&)(ostream &))
   Lock l(&lock);
 
   log(d_strings[pthread_self()], d_outputurgencies[pthread_self()]);
-  d_strings.erase(pthread_self());  // ??
-  d_outputurgencies.erase(pthread_self());
+  //  d_strings.erase(pthread_self());  // ??
+  //  d_outputurgencies.erase(pthread_self());
+  d_strings[pthread_self()]="";
 
 
   return *this;
