@@ -33,8 +33,6 @@
 #include "logger.hh"
 #include "common.hh"
 
-#define LEFT left
-
 bool degraded(false);
 unsigned char maxBackendLen;
 
@@ -56,16 +54,16 @@ void printUsage()
   cerr<<args().makeHelp()<<endl;
   cerr<<endl;
   cerr<<"Commands: "<<endl;
-  cerr<<setw(30)<<LEFT<<"block backend1 [backends..]"<<"Set backends to readonly"<<endl;
-  cerr<<setw(30)<<LEFT<<"unblock backend1 [backends..]"<<"Set backends to read/write"<<endl;
-  cerr<<setw(30)<<LEFT<<"dir"<<"List all mailboxes on all backends"<<endl;
-  cerr<<setw(30)<<LEFT<<"dir backend1 [backendse]"<<"List all mailboxes on specified backends"<<endl;
-  cerr<<setw(30)<<LEFT<<"orphans"<<"List all mailboxes that do not appear in the database"<<endl;
-  cerr<<setw(30)<<LEFT<<"purge mbox1 [mboxen..]"<<"Purge a mailbox on all backends"<<endl;
-  cerr<<setw(30)<<LEFT<<"purge-orphans"<<"Purge all mailboxes that do not appear in the database"<<endl;
-  cerr<<setw(30)<<LEFT<<"list mbox"<<"List a mailbox and redundancy info"<<endl;
-  cerr<<setw(30)<<LEFT<<"status"<<"See status of all backends"<<endl;
-  cerr<<setw(30)<<LEFT<<"usage mbox"<<"See usage of a mailbox"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"block backend1 [backends..]"<<"Set backends to readonly"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"unblock backend1 [backends..]"<<"Set backends to read/write"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"dir"<<"List all mailboxes on all backends"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"dir backend1 [backendse]"<<"List all mailboxes on specified backends"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"orphans"<<"List all mailboxes that do not appear in the database"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"purge mbox1 [mboxen..]"<<"Purge a mailbox on all backends"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"purge-orphans"<<"Purge all mailboxes that do not appear in the database"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"list mbox"<<"List a mailbox and redundancy info"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"status"<<"See status of all backends"<<endl;
+  cerr<<setw(30)<<setiosflags(ios::left)<<"usage mbox"<<"See usage of a mailbox"<<endl;
 }
 
 void die(const string &s)
@@ -79,9 +77,9 @@ void statCommand(const vector<string>&words)
   long totalKB=0;
   for(vector<BackendData>::const_iterator i=backends.begin();i!=backends.end();++i) {
     if(i->port!=1101)
-      cout<<setw(maxBackendLen)<<LEFT<<(i->address+":"+itoa(i->port));
+      cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<(i->address+":"+itoa(i->port));
     else
-      cout<<setw(maxBackendLen)<<LEFT<<i->address;
+      cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<i->address;
 
     try {
       PPTalker pp(i->address,i->port,args().paramString("pplistener-password"));
@@ -107,7 +105,7 @@ void statCommand(const vector<string>&words)
     }
     
   }
-  cout<<setw(maxBackendLen)<<LEFT<<""<<totalKB/1000<<" mb available for writing"<<endl;
+  cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<""<<totalKB/1000<<" mb available for writing"<<endl;
 }
 
 void nukeCommand(const vector<string>&words)
@@ -117,9 +115,9 @@ void nukeCommand(const vector<string>&words)
      
      if (g_simple_output == false) {
         if(i->port!=1101)
-           cout<<setw(maxBackendLen)<<LEFT<<(i->address+":"+itoa(i->port));
+           cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<(i->address+":"+itoa(i->port));
         else
-           cout<<setw(maxBackendLen)<<LEFT<<i->address;
+           cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<i->address;
      }
 
     try {
@@ -171,9 +169,9 @@ bool byIndex(const Talker::msgInfo_t &a, const Talker::msgInfo_t &b)
 void dirMboxesName(const string &address, unsigned int port,vector<string> &mboxes,map<string,int>&all)
 {
   if(port!=1101)
-    cout<<setw(maxBackendLen)<<LEFT<<(address+":"+itoa(port));
+    cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<(address+":"+itoa(port));
   else
-    cout<<setw(maxBackendLen)<<LEFT<<address;
+    cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<address;
 
   try {
     PPTalker pp(address,port,args().paramString("pplistener-password"));
@@ -267,9 +265,9 @@ void dirMboxes(bool lookup=false)
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) 
     maxlen=max(maxlen,i->first.length());
 
-  cout<<endl<<setw(maxlen+2)<<LEFT<<"Mailbox"<<"# backends"<<endl;
+  cout<<endl<<setw(maxlen+2)<<setiosflags(ios::left)<<"Mailbox"<<"# backends"<<endl;
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) {
-    cout<<setw(maxlen+2)<<LEFT<<i->first<<setw(10)<<LEFT<<i->second<<"  ";
+    cout<<setw(maxlen+2)<<setiosflags(ios::left)<<i->first<<setw(10)<<setiosflags(ios::left)<<i->second<<"  ";
     if(lookup) 
       dbLookup(i->first);
 
@@ -294,9 +292,9 @@ void dirMboxes(const vector<string> &bends, bool lookup=false)
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) 
     maxlen=max(maxlen,i->first.length());
 
-  cout<<endl<<setw(maxlen+2)<<LEFT<<"Mailbox"<<"# backends"<<endl;
+  cout<<endl<<setw(maxlen+2)<<setiosflags(ios::left)<<"Mailbox"<<"# backends"<<endl;
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) {
-    cout<<setw(maxlen+2)<<LEFT<<i->first<<setw(10)<<LEFT<<i->second<<"  ";
+    cout<<setw(maxlen+2)<<setiosflags(ios::left)<<i->first<<setw(10)<<setiosflags(ios::left)<<i->second<<"  ";
     if(lookup) 
       dbLookup(i->first);
     cout<<endl;
@@ -319,9 +317,9 @@ void blockunblockCommand(const vector<string>&backends, bool dir)
       port=atoi(parts[1].c_str());
 
     if(port!=1101)
-      cout<<setw(maxBackendLen)<<LEFT<<(address+":"+itoa(port));
+      cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<(address+":"+itoa(port));
     else
-      cout<<setw(maxBackendLen)<<LEFT<<address;
+      cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<address;
 
 
     try {
@@ -354,9 +352,9 @@ void listCommand(const string &mbox)
   int lastmsgs=0;
   for(vector<BackendData>::const_iterator i=backends.begin();i!=backends.end();++i) {
     if(i->port!=1101)
-      cout<<setw(maxBackendLen)<<LEFT<<(i->address+":"+itoa(i->port));
+      cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<(i->address+":"+itoa(i->port));
     else
-      cout<<setw(maxBackendLen)<<LEFT<<i->address;
+      cout<<setw(maxBackendLen)<<setiosflags(ios::left)<<i->address;
 
     try {
       PPTalker pp(i->address,i->port,args().paramString("pplistener-password"));
@@ -393,7 +391,7 @@ void listCommand(const string &mbox)
       cout<<"SIZE!";
 
     count++;
-    cout<<"\t"<<setw(maxBackendLen)<<LEFT<<i->ppname<<"\t"<<i->size<<endl;
+    cout<<"\t"<<setw(maxBackendLen)<<setiosflags(ios::left)<<i->ppname<<"\t"<<i->size<<endl;
     lastindex=i->index;
     lastsize=i->size;
   }
