@@ -15,7 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// $Id: oracle.hh,v 1.1 2002-12-04 16:32:50 ahu Exp $
+// $Id: oracle.hh,v 1.2 2003-02-04 13:32:55 ahu Exp $
 
 #ifndef ORACLEUSERBASE_HH
 #define ORACLEUSERBASE_HH
@@ -80,34 +80,32 @@ class OracleException
 class OracleUserBase : public UserBase
 {
    public:
-      
-      OracleUserBase(const string &home, const string &sid, const string &database, const string &username,
-         const string &password, const string &query);
-      ~OracleUserBase();
-      
-      static UserBase *maker();
-      
-      int mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect);
-
-   private:
-      
-      bool connect();
-      void cleanup();
-      bool connected(); 
-      
-   private:
-
-      OCIEnv    *mEnvironmentHandle;
-      OCIError  *mErrorHandle;
-      OCISvcCtx *mServiceContextHandle;
-      OCIStmt   *mStatementHandle;
-
-      char      mQueryName[256];
-      char      mResultDestination[256];
-      sb2       mResultDestinationIndicator;
-
-      string d_home, d_sid, d_database, d_username, d_password, d_query;
-      pthread_mutex_t d_dblock;
+  OracleUserBase(const string &home, const string &sid, const string &database, const string &username,
+		 const string &password, const string &query);
+  ~OracleUserBase();
+  
+  static UserBase *maker();
+  
+  int mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect, const string &challege);
+private:
+  
+  bool connect();
+  void cleanup();
+  bool connected(); 
+  
+private:
+  
+  OCIEnv    *mEnvironmentHandle;
+  OCIError  *mErrorHandle;
+  OCISvcCtx *mServiceContextHandle;
+  OCIStmt   *mStatementHandle;
+  
+  char      mQueryName[256];
+  char      mResultDestination[256];
+  sb2       mResultDestinationIndicator;
+  
+  string d_home, d_sid, d_database, d_username, d_password, d_query;
+  pthread_mutex_t d_dblock;
 };
 
 #endif /* ORACLEUSERBASE_HH */
