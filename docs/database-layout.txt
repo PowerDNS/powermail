@@ -1,0 +1,31 @@
+CREATE TABLE mboxes (
+  id int(11) NOT NULL auto_increment,
+  mbox varchar(128) NOT NULL default '',
+  password varchar(20) NOT NULL default '',
+  quotaMB int(11) default '0',
+  isForward tinyint(1) default '0',
+  fwdDest varchar(80) default NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY mbox_index (mbox)
+) TYPE=ISAM PACK_KEYS=1;
+
+#
+# Dumping data for table 'mboxes'
+#
+
+INSERT INTO mboxes VALUES (1,'ahu@ds9a.nl','geheim',50,1,'ahu@ds9a.nl');
+INSERT INTO mboxes VALUES (2,'ahu@powerdns.org','geheim',50,0,NULL);
+INSERT INTO mboxes VALUES (3,'funk@powerdns.org','guido',1,0,NULL);
+INSERT INTO mboxes VALUES (4,'ahhing@powerdns.org','tsjoi',1,0,NULL);
+INSERT INTO mboxes VALUES (5,'dave@powerdns.org','liel',1,0,NULL);
+INSERT INTO mboxes VALUES (6,'gerjan@powerdns.org','janger',1,0,NULL);
+INSERT INTO mboxes VALUES (7,'mir@powerdns.org','mir.iam',1,0,NULL);
+INSERT INTO mboxes VALUES (8,'hans@powerdns.org','zetzet!',1,0,NULL);
+INSERT INTO mboxes VALUES (9,'grum@powerdns.org','grummig',1,0,NULL);
+INSERT INTO mboxes VALUES (10,'sweep@powerdns.org','rene',1,0,NULL);
+INSERT INTO mboxes VALUES (11,'stefan@powerdns.org','s4t3h',50,0,NULL);
+INSERT INTO mboxes VALUES (12,'michel@powerdns.org','-wimpie-',0,0,NULL);
+INSERT INTO mboxes VALUES (13,'floor@powerdns.org','gizmo',5,0,NULL);
+INSERT INTO mboxes VALUES (14,'earthy@powerdns.org','kuiken',5,0,NULL);
+INSERT INTO mboxes VALUES (15,'stefan1@powerdns.org','s4t3h',50,0,NULL);
+INSERT INTO mboxes VALUES (16,'stefan2@powerdns.org','s4t3h',50,0,NULL);

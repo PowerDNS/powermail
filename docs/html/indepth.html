@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>In depth technicalities</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="LDAP"
+HREF="x657.html"><LINK
+REL="NEXT"
+TITLE="Quotas"
+HREF="quotas.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x657.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="quotas.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="AEN661">Chapter 11. In depth technicalities</H1
+><P
+>      Each backend is a pplistener daemon. A pplistener stores all messages under
+      one doubly hashed directory, so a typical Maildir might 
+      be '/var/powermail/messages/01/04/info@company.biz/'. Because all mail is stored in a
+      single filesystem, it is possible for a file to be present in many
+      mailboxes, and this is in fact how PowerMail operates.
+    </P
+><P
+>      The operating system will only actually store one (1) copy of a message, no
+      matter how many recipients that message has on that filesystem. It will be
+      deleted when it is removed from the last mailbox that references the
+      message.
+    </P
+><P
+>      This allows for great space savings and, more importantly, for 'straight
+      paper path' delivery.
+    </P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN666">11.1. Maildir and queue-less delivery</H1
+><P
+>	Each mailbox is more-or-less a standard Qmail Maildir, which means that new
+	messages are written in the 'tmp' subdirectory and are moved to 'cur'
+	subdirectory then they are ready.
+      </P
+><P
+>	Because of this, no locking is needed, and messages can be delivered
+	atomically to many recipients, with intermediate failure at worst causing a
+	duplicate delivery.
+      </P
+><P
+>	Because of the use of hardlinks, it is possible to deliver messages straight
+	into the Maildir, without use of a queue in between. This makes mail
+	delivery very fast and robust.
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x657.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="quotas.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>LDAP</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Quotas</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

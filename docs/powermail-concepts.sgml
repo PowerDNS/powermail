@@ -1,0 +1,236 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<!-- Title information -->
+<title>PowerMail conceptual overview</title>
+<author>PowerDNS BV (bert hubert &lt;bert@powerdns.com.com&gt;)</author>
+<date>v1.1 $Date: 2002-12-04 13:46:48 $</date>
+<abstract>
+This document contains a conceptual and technical description of PowerMail
+</abstract>
+<toc>
+<sect>PowerMail redundant &amp; distributed mail system
+<p>
+PowerMail is a redundant &amp; distributed system for receiving mail and
+storing it for users. The way PowerMail works is quite unorthodox, this
+document sets out how the different modules cooperate.
+
+<sect1>Mailboxes
+<p>
+PowerMail contains an arbitrary number of Mailboxes. Contrary to existing
+practice, a mailbox name includes the domain name. A sample mailbox might be
+called 'info@company.biz'. PowerMail does not care which domain a mailbox
+resides under - the mailbox name includes the domain.
+
+<sect1>Userbase
+<p>
+To know if a mailbox exists, the Userbase is queried. This will most often
+be a relational database. The stock PowerMail distribution works with MySQL.
+Besides storing which mailboxes exist, the Userbase also knows about Quotas
+and Mailforwarding.
+
+<sect1>Messages
+<p>
+A mailbox consists of messages. Each message is a single file on disk, even
+if it has multiple recipients. In other words, a single file can live in
+multiple mailboxes simultaneously. This means that a message with thousands
+of recipients is stored only once on disk.
+
+<sect1>Backends
+<p>
+The mentioned messages live on backends. Unlike other systems, PowerMail not
+only allows but requires multiple backends. Each backend is a very
+simpleminded fileserver. Typically, a single backend is used per host,
+unless that host has multiple filesystems, in which case a backend is
+started for each filesystem.
+
+<sect>Daemons
+<p>
+Mail is received over the Simple Mail Tranport Protocol, SMTP. It is
+transferred to the reader via the Post Office Protocol, version 3, POP3.
+
+<sect1>The powersmtp daemon
+<p>
+The powersmtp daemon listens on the SMTP port (25) and checks with the
+Userbase if recipients exist. If they do, the message is received and sent
+to a backend. The recipient might also be a forwarded account, in which case
+the message is passed to the outgoing SMTP host. 
+
+<sect1>The powerpop daemon
+<p>
+The powerpop daemon listens on the pop3 port (110) and checks with the
+Userbase if the supplied user and password data exist in the database. If
+this is the case, all messages for this mailbox are retrieved from the
+backends.
+
+Duplicates are filtered out and the unified list is presented to the user.
+
+<sect1>The pplistener daemon
+<p>
+Each backend runs the pplistener daemon which can be likened to a very
+simple ftp server. Each pplistener can be in read/write or in readonly mode.
+The latter might for example occur if the filesystem is full, or if the
+backend is about to be phased out and should accept no new data.
+
+<sect>Redundancy
+<p>
+Each message is sent to at least 2 backends. The SMTP makes sure that the
+redundancy target is met before announcing to the sending mailserver that
+the message was properly received. In this way, messages are always stored
+redundantly.
+<sect1>Groups
+<p>
+Each backend is assigned to a group. Backends within a group do not generate
+redundancy - this can be used to make sure that email is spread over
+different physical locations so that each site has a copy of all articles.
+
+Multiple partitions or filesystems residing withing a same host are also
+candidates to reside in the same group.
+<sect1>Priority
+<p>
+Data is always stored on the highest-priority available host. By assigning
+different priorities, it is possible to have 'hot spare' servers which can
+instantly take the place of failed or replaced boxes.
+<sect1>Load &amp; diskspace
+<p>
+Given equal priorities, powersmtp can be instructed to chose a random
+server, or prefer the one with the most diskspace available or the one with
+the lowest load. 
+<p>
+Your choice will depend on the workload presented.
+
+<sect1>Goals
+<p>
+It is important to determine what targets we want to meet. PowerDNS tries to
+maximize perceived uptime - users must at all times be able to access their
+mailboxes, which should contain as much of their mail as possible. Access
+to POP is never disabled.
+
+Mail delivery however is halted as soon as redundancy cannot be guaranteed,
+remote mailers will have to wait until more backends become available. As
+this is not directly perceived by the user, disabling deliveries is
+preferred over allowing non-redundant deliveries.
+<sect>Configuration
+<p>
+Besides the general PowerMail configuration in power.conf, each PowerMail
+program has a dedicated configuration file, which is read after parsing the
+general file.
+
+Each parameter can be overridden on the command line for maximum flexibility.
+<sect1>power.conf
+<p>
+Power.conf is shared by all tools, which makes it the right place to specify
+what backend servers will be used. It is vital that mail is retrieved from
+all servers that it is delivered to!
+
+Power.conf also stores the user- and group-id to run as, which all daemons
+will honor.
+
+<sect1>Other configuration
+<p>
+Other configuration files are discussed in the manpages for powersmtp,
+powerpop and pplistener.
+
+<sect>In depth technicalities
+<p>
+Each backend is a pplistener daemon. A pplistener stores all messages under
+one doubly hashed directory, so a typical Maildir might 
+be '/var/powermail/01/04/info@company.biz/'. Because all mail is stored in a
+single filesystem, it is possible for a file to be present in many
+mailboxes, and this is in fact how PowerMail operates.
+
+The operating system will only actually store one (1) copy of a message, no
+matter how many recipients that message has on that filesystem. It will be
+deleted when it is removed from the last mailbox that references the
+message.
+
+This allows for great space savings and, more importantly, for 'straight
+paper path' delivery.
+<sect1>Maildir
+<p>
+Each mailbox is more-or-less a standard Qmail Maildir, which means that new
+messages are written in the 'tmp' subdirectory and are moved to 'cur'
+subdirectory then they are ready.
+
+Because of this, no locking is needed, and messages can be delivered
+atomically to many recipients, with intermediate failure at worst causing a
+duplicate delivery.
+
+<sect1>Queue-less delivery
+<p>
+Because of the use of hardlinks, it is possible to deliver messages straight
+into the Maildir, without use of a queue in between. This makes mail
+delivery very fast and robust.
+
+<sect1>Redundancy in practice
+<p>
+PowerMail only considers a message delivered when it is stored on more than
+2 servers residing in different groups, and that number can be raised. If
+less than 2 servers are available, powersmtp starts to refuse mail delivery,
+giving out temporary 'please try later' errors. This puts the burden of
+queueing on the delivering agent, where it belongs.
+
+When retrieving mail, all backends are queried for which messages they have
+listed for that mailbox. In case of drastic failure, messages might start to
+disappear from a mailbox and return only when backends a restored.
+<sect2>Queued deletions
+<p>
+A backend that has been out of service might on return cause messages that
+the user has deleted to inadvertently reappear. To prevent this, powerpop
+stores a failure log per backend which stores failed deletions.
+<p>
+When a backend comes online again, these deletions are first replayed before
+messages are made available to users again. This prevents messages from
+magically appearing again.
+
+<sect>Best-practice setups
+<p>
+An ideal setup consists of at least three servers. This guarantees that a
+single-machine failure does not hamper service in any way. As there are
+still two servers available, which together contain all messages, both
+delivery and retrieval continue. There is no lack of functionality.
+
+A futher failure will cause part of the messages (around 33%) to disappear,
+but mail retrieval will still be possible. Mail deliveries will cease.
+
+<sect1>High redundancy
+<p>
+Six machines in three groups with a redundancy target of 3 means that any
+two servers can fail before messages might be lost. In other words, 33% of
+your servers may fail before problems occur.
+
+Mail deliver patterns then look like this:
+<tscreen><verb>
+	1 2   3 4   5 6
+1	x     x     x
+2	x     x       x
+3	x       x   x
+4	x       x     x
+5	  x   x     x
+6	  x   x       x
+7	  x     x   x
+8	  x     x     x
+</verb></tscreen>
+
+If servers 1, 2 and 3 fail, no mail is lost. In the general case, mail might
+only be lost if all groups lose a server. Otherwise, at least one undamaged
+group survives and by our configuration, each group has a copy of all
+mesages.
+
+The chance for three failures to fall into three groups is 1-((3/3) * (2/3)
+* (1/3))=1/3. So only in one-third of the cases, there is a chance of all
+groups losing a message. This only happens if the failures exacly strike the
+three servers that house your message, for which the chance is
+(1/2)*(1/2)*(1/2)=1/8. 
+
+Summarizing, the compound expected loss of mail in case of 50% failure is
+(1/3)*(1/8)=1/24, which is around 4%. 
+
+There is a 1/3 chance that messages can continue to be stored redundantly,
+but in that case, 12.5% of already present mail is lost.
+
+There is a 2/3 chance that mail reception is disabled, but not a single
+message is lost.
+</article>
+

@@ -1,0 +1,15 @@
+/* mailbox with account info@example.com (or info%example.com) */
+
+address "info@example.com" {
+  password "{plain}s3cr3t!";  # plaintext!
+  quota 250k;
+};
+
+address "md5@example.com" {
+  password "{md5}$1$oFz7$5V4etAXxfiX/aQWBwLuAe1";
+};
+
+address "sales@example.com" {
+	forward "info@example.com";
+};
+

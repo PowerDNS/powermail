@@ -1,0 +1,283 @@
+<!doctype linuxdoc system>
+
+<article>
+
+<!-- Title information -->
+<title>PowerMail installation instructions</title>
+<author>PowerDNS BV (bert hubert &lt;bert@powerdns.com.com&gt;)</author>
+<date>v1.1 $Date: 2002-12-04 13:46:49 $</date>
+<abstract>
+This document contains instructions on how to install PowerMail. 
+</abstract>
+<toc>
+<sect>Prerequisites
+<p>
+It is strongly advised that you read &amp; understand the 'PowerMail concepts' document 
+before attempting a PowerMail install.
+
+<sect1>Distribution
+<p>
+PowerMail is distributed as a single tar.gz, called powermail-x.y.z.tar.gz, where x, y and z
+represent the version distributed.
+
+<sect1>Compilation environment
+<p>
+If you received a non-binary source distribution, you will need the following:
+<itemize>
+<item>gcc 3.x</item>
+<item>g++</item>
+<item>MySQL client libraries</item>
+<item>MySQL development headers</item>
+</itemize>
+
+<sect1>Operating environment
+<p>
+PowerMail currently only runs on Linux 2.2 and 2.4. Other Unixes are easily ported to, 
+but this has not yet been done.
+
+<sect>Compiling
+<p>
+Untar the distribution in a convenient place:
+<tscreen><verb>
+$ tar xzf powermail-x.y.z.tar.gx
+$ cd powermail-x.y.z
+</verb></tscreen>
+<sect1>The configure script &amp; compilation
+<p>
+In order to adapt PowerMail to your specific host, the configure script is provided. 
+Specifically, this script tests for the presence of your MySQL libraries. If these 
+are installed in more or less default places, running ./configure without parameters
+suffices.
+<sect2>Installing PowerMail in other than the default place
+<p>
+Unconfigured, PowerMail will install daemons in /usr/sbin and other binaries in /usr/bin.
+If this does not suit your directory preferences, use the ./configure parameters --prefix, 
+--exec-prefix and --program-prefix to modify paths.
+
+<sect2>Selecting a different kind of userbase
+<p>
+One flag of the ./configure script is important if you are not running the default MySQL
+backend. Use the --with-userbase flag to select another one. Currently, your choice consists
+of 'mysqlplain' and 'mysqlpdns'.
+
+<sect2>Specifying directories to be searched
+<p>
+If configure is unable to find all libraries, but they are available on your system
+in non-standard places, you need to specify additional directories to be searched. 
+This can be achieved by setting the CPPFLAGS and LIBS variables.
+
+For example, to look for additional include files in /opt/mysql/include/mysql and 
+for additional libraries in /opt/mysql/lib, run run configure like this:
+
+<tscreen><verb>
+$ CPPFLAGS=-I/opt/mysql/include/mysql LIBS=-L/opt/mysql/lib ./configure
+....
+$
+</verb></tscreen>
+If this finishes without errors, issue the make command to compile PowerMail.
+<sect>Installing
+<p>
+Once compilation has finished, change to the root user and run make install.
+Besides installing the binaries mboxdir, powerpop, powersmtp, pplistener and pptool, 
+you will also find scripts in the /etc/init.d directory to start, stop and query the 
+three daemons, powerpop, powersmtp and pplistener.
+
+The install process will also install default configuration files in /etc/powermail. 
+In addition, manpages will be installed in standard places.
+
+<sect>Starting a simple installation
+<p>
+The simple installation consists of two hosts, one running powerpop &amp; powersmtp and
+pplistener, the other one only functioning as a storage backend, running solely pplistener.
+
+First install powermail on both hosts. Both hosts will function as a backend and need a
+directory to store mail in. 
+
+<sect1>Backend hosts: pplistener
+<p>
+The backend daemon pplistener defaults to using /var/powermail. 
+If you are unhappy with this, change the mail-root setting in /etc/powermail/pplistener.conf.
+
+Next, make this directory and make it owned by the user that pplistener will run as. For this
+initial test we will act dangerously and have everything running as root. If it is able to, 
+pplistener will create the directory itself.
+
+For reasons of safety, a password is required to access pplistener. It is *not* possible to
+run without one. Chose a password and set the 'password' field in /etc/powermail/pplistener.conf
+to it.
+
+Now start pplistener:
+<tscreen><verb>
+# /etc/init.d/pplistener start
+pplistener: started
+# /etc/init.d/pplistener status
+pplistener: pplistener functioning ok: +OK OK!
+</verb></tscreen>
+
+If you forgot to create the mail-root directory, and pplistener is not able to do it for you, 
+or neglected to set a password, these commands will fail.
+
+Perform this process on both host and you will be ready to continue with setting up the internet
+daemons.
+<sect1>Internet daemons: powerpop &amp; powersmtp
+<p>
+The most tricky part of these daemons is setting up the communication with the userbase,
+implemented by default as a MySQL database.
+<sect2>Setting up MySQL
+<p>
+Connect to MySQL as a user that can create database, and issue the following statements:
+<tscreen><verb>
+$ mysql -u root
+mysql> create powermail
+mysql> CREATE TABLE mboxes (
+       id int(11) NOT NULL auto_increment,
+       mbox varchar(128) NOT NULL default '',
+       password varchar(20) NOT NULL default '',
+       quotaMB int(11) default '0',
+       isForward tinyint(1) default '0',
+       fwdDest varchar(80) default NULL,
+       PRIMARY KEY  (id),
+       UNIQUE KEY mbox_index (mbox)
+       ) TYPE=ISAM PACK_KEYS=1;
+mysql> INSERT INTO mboxes VALUES (1,'info@yourdomain.com','31337pw',50,0,NULL);
+mysql>
+</verb></tscreen>
+In this simple example, we will not mention mysql authentication but in real life
+you should use 'GRANT' statements to secure readonly access to your database. 
+
+Note that you also generated a mailbox called info@yourdomain.com, with 
+password '31337pw'.
+<sect2>Configuring 
+<p>
+Both powersmtp and powerpop need to be able to connect to MySQL. Because of these
+shared parameters, both read the file /etc/powermail/power.conf before parsing
+their own configuration files.
+
+In power.conf, specify your 'mysql-host', 'mysql-user', and 'mysql-password'.
+
+You also need to tell powermail and powerpop the addresses of your backends, which
+each run pplistener. In our case, add the following two lines to power.conf:
+
+<tscreen><verb>
+backends=1:1:127.0.0.1, 2:1:secondbackend
+pplistener-password=s3cr3t
+</verb></tscreen>
+
+In which 'secondbackend' is the name of the machine only functioning as a backend
+and 's3cr3t' the password you also installed in pplistener.conf.
+<sect2>Chosing IP addresses &amp; ports to bind to
+<p>
+You are now mostly ready to launch the daemons, but it is likely that you are already 
+running a mailer. This is not a problem but you will have to pick another
+port or IP address for running PowerMail. Alternatively, stop your existing mailer.
+
+If you decide to use a separate IP address, create an interface alias for it. This
+will differ with your operating system. Next tell PowerMail about it. Again, the power.conf
+file is a apropriat file, as all daemons will bind to your IP address. A sample line
+might read 'listen-address=a.b.c.d', where a.b.c.d is your IP alias.
+
+Another solution is to bind to another port, which is probably only useful for testing.
+As all daemons need a different port, specify this in powersmtp.conf and powerpop.conf 
+using the listen-port parameter.
+<sect2>Launching
+<p>
+<tscreen><verb>
+# /etc/init.d/powersmtp start
+powersmtp: started
+# /etc/init.d/powerpop start
+powerpop:started
+# /etc/init.d/powerpop status
+powerpop: PowerPOP functioning ok: +OK OK!
+# /etc/init.d/powersmtp status
+powersmtp: PowerSMTP functioning ok: 200 OK!
+</verb></tscreen>
+If anything is wrong, most likely with the MySQL connection, these scripts will warn you, but 
+launch nonetheless. This is because a temporary database failure should not shutdown
+your mailsystem permanently.
+<sect2>Testing
+<p>
+Now run the 'pptool' command, installed by default in /usr/bin:
+<tscreen><verb>
+# pptool stat
+127.0.0.1   3792 mb, 568720 inodes, load: 0.01, read/write access
+1.2.3.4     4242 mb, 234543 inodes, load: 0.00, read/write access
+            8034 mb available for writing
+</verb></tscreen>
+If there are any problems, for example with wrong passwords, this 
+tool will inform you of them.
+
+Next, we will test a sample delivery and retrieval of a message. 
+First delivery, by hand, using the telnet tool. We will assume 
+that powersmtp is running on port 25, but you might have chosen
+a different port for testing:
+
+<tscreen><verb>
+$ telnet 127.0.0.1 25
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+220 snapcount PowerSMTP ESMTP
+mail from: ahu@ds9a.nl
+250 Started message <1006724301:884450:snapcount.0> for sender <ahu@ds9a.nl>
+rcpt to: info@yourdomain.com
+250 Added recipient 'info@yourdomain.com' to message <1006724301:884450:snapcount.0>
+data
+354 Enter message, ending with '.' on a line by itself. Quota available: 50000 kilobytes
+From: ahu@ds9a.nl
+To: info@yourdomain.com
+Subject: test
+
+testing 1 2 3
+.
+250 Delivered message <1006724301:884450:snapcount.0> successfully to all recipients
+quit
+221 bye
+Connection closed by foreign host.
+</verb></tscreen>
+
+Now let's see if this message has arrived with the 'pptool' command:
+<tscreen><verb>
+# pptool list info@yourdomain.com
+127.0.0.1        done listing 'info@yourdomain.com', 1 messages
+1.2.3.4          done listing 'info@yourdomain.com', 1 messages
+
+1006724301:884450:snapcount.0.1
+	127.0.0.1               162
+	1.2.3.4                 162
+
+1 messages, 0% non-redundant
+0 kilobytes net
+</verb></tscreen>
+
+Next, we'll try to actually retrieve the message:
+
+<tscreen><verb>
+# telnet 127.0.0.1 110
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
++OK snapcount
+user info@yourdomain.com
++OK 
+pass 31337pw
++OK 
+list
++OK
+1 162
+.
+retr 1
++OK
+Received: from 127.0.0.1:36724 by snapcount (PowerMail) with id <1006724301:884450:snapcount.0>
+From: ahu
+To: ahu@powerdns.org
+Subject: test
+
+testing 1 2 3
+.
+quit
++OK 
+Connection closed by foreign host.
+</verb></tscreen>
+
+</article>
+

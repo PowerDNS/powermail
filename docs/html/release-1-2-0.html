@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>1.2.0</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Release notes"
+HREF="release-notes.html"><LINK
+REL="PREVIOUS"
+TITLE="1.3"
+HREF="release-1-3.html"><LINK
+REL="NEXT"
+TITLE="1.1.0"
+HREF="release-1-1-0.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="release-1-3.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 2. Release notes</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="release-1-1-0.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-1-2-0">2.4. 1.2.0</H1
+><P
+>	This is a big release. We salute Julian Seward for his wonderful work on 
+	<A
+HREF="http://developer.kde.org/~sewardj/"
+TARGET="_top"
+>the Valgrind memory debugger</A
+>. PowerMail is now a better product for it.
+      </P
+><P
+>	New features:
+      </P
+><P
+>	<P
+></P
+><UL
+><LI
+><P
+>	      Now spawns multiple database connections if those are needed using a connection pool.
+	    </P
+></LI
+><LI
+><P
+>	      Added PostgreSQL support, see <A
+HREF="postgresql.html"
+>Section 10.4</A
+>.
+	    </P
+></LI
+><LI
+><P
+>	      Added catch-all/fallback accounts, see <A
+HREF="catch-all.html"
+>Section 9.3</A
+>.
+	    </P
+></LI
+><LI
+><P
+>	      Added delay after a wrong password to prevent dictionary attacks.
+	    </P
+></LI
+><LI
+><P
+>	      Added missing <B
+CLASS="COMMAND"
+>pptool</B
+> documentation, see <A
+HREF="insight.html#PPTOOL"
+>Section 7.1</A
+>.
+	    </P
+></LI
+></UL
+>
+      </P
+><P
+>	Bugs fixed:
+      </P
+><P
+>	<P
+></P
+><UL
+><LI
+><P
+>	      Removed memory leaks, thanks to Valgrind
+	    </P
+></LI
+><LI
+><P
+>	      Increased stability by removing duplicate deletes, thanks to Valgrind
+	    </P
+></LI
+><LI
+><P
+>	      <B
+CLASS="COMMAND"
+>pplistener</B
+> now logs under the right program name
+	    </P
+></LI
+><LI
+><P
+>	      <B
+CLASS="COMMAND"
+>pplistener</B
+> did not allow connections to be closed gracefully
+	      and logged a lot of unneeded 'connection reset by peer' messages as a result.
+	    </P
+></LI
+></UL
+>
+      </P
+><P
+>	Works in progress:
+      </P
+><P
+>	<P
+></P
+><UL
+><LI
+><P
+>	      FreeBSD version - nearly done.
+	    </P
+></LI
+></UL
+>
+      </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-1-3.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-1-1-0.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>1.3</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release-notes.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>1.1.0</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

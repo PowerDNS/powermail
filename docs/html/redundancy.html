@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Redundancy</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="mboxdir"
+HREF="mboxdir.html"><LINK
+REL="NEXT"
+TITLE="Redundancy in practice"
+HREF="redundancy-practice.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="mboxdir.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="redundancy-practice.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="AEN405">Chapter 8. Redundancy</H1
+><P
+>      PowerSmtp makes sure that the redundancy target is met before announcing to the sending mailserver that
+      the message was properly received. In this way, messages are always stored at at least the configured minimum redundancy.
+    </P
+><P
+>      <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>group</DT
+><DD
+><P
+>	      Each backend is assigned to a group. Backends within a group do not generate
+	      redundancy - this can be used to make sure that email is spread over
+	      different physical locations so that each site has a copy of all articles.
+	    </P
+><P
+>	      Multiple partitions or filesystems residing withing a same host are also
+	      candidates to reside in the same group.
+	    </P
+></DD
+><DT
+>Priority</DT
+><DD
+><P
+>	      Data is always stored on the highest-priority available host. By assigning
+	      different priorities, it is possible to have 'hot spare' servers which can
+	      instantly take the place of failed or replaced boxes.
+	    </P
+></DD
+><DT
+>Load &amp; diskspace</DT
+><DD
+><P
+>	      Given equal priorities, powersmtp can be instructed to choose a random
+	      server, or prefer the one with the most diskspace available or the one with
+	      the lowest load. 
+	    </P
+><P
+>	      Your choice will depend on the workload presented.
+	    </P
+></DD
+></DL
+></DIV
+>
+    </P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN424">8.1. Goals</H1
+><P
+>	It is important to determine what targets we want to meet. PowerMail tries to
+	maximize perceived uptime - users must at all times be able to access their
+	mailboxes, which should contain as much of their mail as possible. Access
+	to POP is never disabled.
+      </P
+><P
+>	Mail delivery however is halted as soon as the minimum configured redundancy cannot 
+	be guaranteed,
+	remote mailers will have to wait until more backends become available. As
+	this is not directly perceived by the user, disabling deliveries is
+	preferred over allowing non-redundant deliveries.
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="mboxdir.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="redundancy-practice.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>mboxdir</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Redundancy in practice</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

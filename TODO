@@ -1,0 +1,56 @@
+
+	heel veel powersmtp's
+		max aantal verbindingen instellen
+	configuratie moet multipart query kunnen parsen
+
+
+	imap
+		lot in pplistener
+		ISSUE: uidls 
+			need to rise monotonically and be persistent per
+			message (groan)
+
+			LAZY UIDLS!
+
+		ISSUE: folders
+			pplistener does not look in subdirectories
+			autofolder creation
+				is needed because nodes may be out of sync
+				leads to magically appearing folders in case
+				of a move
+
+			squirrel commands missing:
+				CREATE
+				SUBSCRIBE
+				LSUB
+				
+				EXPUNGE
+
+		work:
+			mimeparser
+
+	twostep approach
+		first make something that works for squirrel
+			no persistent uidls
+			no searches
+			only special 'deleted' folder
+		
+	do we need a new pplistener connection per message popped?
+
+	SpamAssassin hook
+		pipe message and abort those destinations that have chosen
+		spamassassin checking, afterwards
+
+		so we need a SpamAssassinTalker!
+
+	program delivery?
+		delivery to a program, that is
+		(like mailman)
+
+
+	pipe-userbase
+
+	cleanup script for growing failure logs
+		lock file, copy all non-! lines, move over original
+		or do so simultaneously? Hmm
+	

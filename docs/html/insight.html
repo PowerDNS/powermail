@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Control and insight into powermail</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Moving beyond a single host"
+HREF="multiple-hosts.html"><LINK
+REL="NEXT"
+TITLE="mboxdir"
+HREF="mboxdir.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="multiple-hosts.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="mboxdir.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="AEN338">Chapter 7. Control and insight into powermail</H1
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PPTOOL">7.1. pptool</H1
+><P
+>	A large powermail installation might well span tens of hosts and see thousands of mailboxes created and deleted each week. To cope with this, the 
+	program <B
+CLASS="COMMAND"
+>pptool</B
+> has been provided.
+      </P
+><P
+>	As <B
+CLASS="COMMAND"
+>pptool</B
+> also reads the common configuration file, it is aware of all backend storage pptalkers available, and can list or modify their
+	contents.
+      </P
+><P
+>	The following commands are available:
+	<P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>status</DT
+><DD
+><P
+>		Lists the status of all pptalkers, including the amount of free diskspace and inodes, the load average and importantly, the read/write status.
+		It also lists the combined amount of diskspace available for writing.
+	      </P
+></DD
+><DT
+>dir [backend1] [backend2]</DT
+><DD
+><P
+>		Lists all mailboxes in all backends. Specific backends can also be listed and only this will be queried then.
+	      </P
+></DD
+><DT
+>orphans</DT
+><DD
+><P
+>		Lists all mailboxes that do exist on backends, but have no entry in the userbase. These mailboxes are 'orphaned' and were not cleaned up 
+		properly.
+	      </P
+></DD
+><DT
+>purge</DT
+><DD
+><P
+>		Purges a mailbox, wether it is in the database or not.
+	      </P
+></DD
+><DT
+>purge-orphans</DT
+><DD
+><P
+>		Creates a list of orphans and purges them. Dangerous command!
+	      </P
+></DD
+><DT
+>list mailbox</DT
+><DD
+><P
+>		Lists the message ids in a mailbox and on which backends it is stored, and if redundancy is met
+	      </P
+></DD
+><DT
+>block backend</DT
+><DD
+><P
+>		Sets a backend to blocked, which means that it is administratively read only. No new mail will be accepted at that backend. Useful
+		for phasing out servers, as deletes will be applied. Leaving a backend blocked will slowly empty it as users retrieve and delete mail.
+	      </P
+></DD
+><DT
+>unblock backend</DT
+><DD
+><P
+>		Reverse operation.
+	      </P
+></DD
+><DT
+>usage mailbox</DT
+><DD
+><P
+>		Prints the quota, in kilobytes, of a mailbox followed by its actual usage, separated by a colon. Suitable for machine parsing.
+	      </P
+></DD
+></DL
+></DIV
+>
+      </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PPTOOL.CONVENIENCE">7.1.1. Convenience commands (password hashing)</H2
+><P
+>	  Besides controling PowerMail nodes, <B
+CLASS="COMMAND"
+>pptool</B
+> can also be used to calculate UNIX crypt()s and MD5 hashes
+	for use in userbases to store passwords as described in <A
+HREF="email.html#PASSWORD.SCHEMAS"
+>Section 9.1</A
+>.
+      </P
+><P
+>	<P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>crypt password</DT
+><DD
+><P
+>		Prints the UNIX crypt(3) of the password supplied on the commandline.
+	      </P
+></DD
+><DT
+>md5 password</DT
+><DD
+><P
+>		Prints the UNIX md5 hash of the password supplied on the commandline.
+	      </P
+></DD
+></DL
+></DIV
+>
+	</P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="multiple-hosts.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="mboxdir.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Moving beyond a single host</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>mboxdir</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,31 @@
+Changes since 1.3:
+
+Changes since 1.2:
+	- improved some logging
+	- added length output to RETR (thanks Peter van Dijk)
+	- added STAT output to PASS (thanks Peter van Dijk)
+	- improved 'STAT' rfc accuracy (thanks Peter van Dijk)
+	- TOP x 0 showed entire message instead of only headers (thanks Peter van Dijk)
+	- SMTP HELP message did not include 'QUIT' 
+
+Changes since 1.1.0:
+	- Made fallback rules live in the main program and not in the userbase
+	    *@blah.com now works for all backends
+	    documented too
+	- added automatic creation/destruction of threads  DOCUMENT THIS!
+	- laid yet more groundwork for more userbases
+	    postgresql!
+	- added wrong password delay
+	- documented the pptool usage command
+	- fixed memory leaks
+	- fixed pplistener logging 
+	- made pptalkers shut down connection properly
+	- reduced pplistener logging
+	
+Changes since 1.0.0:
+
+	- now give out 553 error for addresses which do not exist
+	- added support for {crypt} and {md5}
+	- tought pptool about this
+	- reworked interface for userbases
+	

@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Forwarding</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Per mailbox configuration items"
+HREF="email.html"><LINK
+REL="PREVIOUS"
+TITLE="Per mailbox configuration items"
+HREF="email.html"><LINK
+REL="NEXT"
+TITLE="Catch-all addresses"
+HREF="catch-all.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="email.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 9. Per mailbox configuration items</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="catch-all.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FORWARDING">9.2. Forwarding</H1
+><P
+>	To enable forwarding to work, an additional outgoing mailserver is needed. Any one will do. PowerMail 'preforwards' the email so
+	the outgoing mailserver does not need access to the database. To configure a forwarder, set the <B
+CLASS="COMMAND"
+>smtp-sender-address</B
+>
+	and <B
+CLASS="COMMAND"
+>smtp-sender-port</B
+> parameters in <TT
+CLASS="FILENAME"
+>powersmtp.conf</TT
+>
+      </P
+><P
+>	Make very sure that these settings do not point to another PowerMail configuration as this will lead to bouncing email!
+      </P
+><P
+>	PowerDNS has verified the proper operation of PowerMail with qmail, postfix and sendmail, all fine outgoing mailservers.
+      </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="email.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="catch-all.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Per mailbox configuration items</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="email.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Catch-all addresses</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

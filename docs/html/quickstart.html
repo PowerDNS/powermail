@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Advanced users quick installation</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="1.0.0"
+HREF="release-1-0-0.html"><LINK
+REL="NEXT"
+TITLE="Starting a simple MySQL installation"
+HREF="simple-install.html"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="release-1-0-0.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="simple-install.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="AEN187">Chapter 3. Advanced users quick installation</H1
+><P
+>      This is for the people that don't do documentation and are ready to deploy now.
+    </P
+><P
+>      If you have a mailserver running already, move PowerMail to another IP address. To do so, edit the files in <TT
+CLASS="FILENAME"
+>/etc/powermail</TT
+>.
+    </P
+><P
+>      Now start the daemons:
+      <PRE
+CLASS="SCREEN"
+>	# /etc/init.d/pplistener start
+	pplistener: started
+	
+	# /etc/init.d/pplistener status
+        pplistener: pplistener functioning ok: +OK OK!
+
+	# /etc/init.d/powersmtp start
+        powersmtp: started
+
+	# /etc/init.d/powersmtp status
+        powersmtp: PowerSMTP functioning ok: 200 OK!
+
+	# /etc/init.d/powerpop start
+	powerpop: started
+
+	# /etc/init.d/powerpop status
+	powerpop: PowerPOP functioning ok: +OK OK!
+      </PRE
+>
+    </P
+><P
+>      To check if all is well, run pptool:
+      <PRE
+CLASS="SCREEN"
+>	# pptool status
+	    127.0.0.1   223 mb, 452547 inodes, load: 0.15, read/write access
+                        223 mb available for writing
+      </PRE
+>
+    </P
+><P
+>    </P
+><P
+>      This means that mail storage is online and functioning. Now check if the database connection is functioning:
+      <PRE
+CLASS="SCREEN"
+>	# pptool orphans
+        No orphans!
+      </PRE
+>
+      
+      This verifies that a connection could be made to the 'userbase'. More about orphans and the userbase later. Now 
+      deliver yourself a message. Depending on your setup,
+      you may choose to deliver it by hand over SMTP or to move an MX record to your actual server, and use a regular mailing agent.
+      
+      After delivering a message, we can execute pptool again:
+      <PRE
+CLASS="SCREEN"
+>	$ pptool dir 
+	127.0.0.1   1 mailbox
+
+	Mailbox              # backends
+	info@example.com  1           
+
+	$ pptool list info@example.com
+	127.0.0.1   done listing 'info@example.com', 1 messages
+
+	1022754059:211363:snapcount.0.1
+	  127.0.0.1:1101	157
+	   * NOT REDUNDANT!
+
+	1 messages, 100% non-redundant
+	0 kilobytes net
+      </PRE
+>
+
+      To retrieve the message, connect to the popserver and login as 'info@example.com', and the message will be there.
+    </P
+><P
+>      To add users, edit <TT
+CLASS="FILENAME"
+>/etc/powermail/mailboxes</TT
+>. There is no need to inform PowerMail of your changes,
+      they are picked up automatically.
+    </P
+><P
+>      For more details, see the next chapter. If everything is clear already, head on to <A
+HREF="text-base.html"
+>Section 10.5</A
+> and
+      <A
+HREF="multiple-hosts.html"
+>Chapter 6</A
+>. Otherwise read the rest of the documentation for further explanation.
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-1-0-0.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="simple-install.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>1.0.0</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Starting a simple MySQL installation</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML
+><HEAD
+><TITLE
+>Redundancy in practice</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="PowerMail manual"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Redundancy"
+HREF="redundancy.html"><LINK
+REL="PREVIOUS"
+TITLE="Redundancy"
+HREF="redundancy.html"><LINK
+REL="NEXT"
+TITLE="Per mailbox configuration items"
+HREF="email.html"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PowerMail manual</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="redundancy.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 8. Redundancy</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="email.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN428">8.2. Redundancy in practice</H1
+><P
+>	When configured to operate in redundant mode, PowerMail only considers a message 
+	delivered when it is stored on more than
+	2 servers residing in different groups, and that number can be raised. If
+	less than 2 servers are available, powersmtp starts to refuse mail delivery,
+	giving out temporary 'please try later' errors. This puts the burden of
+	queueing on the delivering agent, where it belongs.
+      </P
+><P
+>	When retrieving mail, all backends are queried for which messages they have
+	listed for that mailbox. In case of drastic failure, messages might start to
+	disappear from a mailbox and return only when backends a restored.
+      </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN432">8.2.1. Queued deletions</H2
+><P
+>	  A backend that has been out of service might on return cause messages that
+	  the user has deleted to inadvertently reappear. To prevent this, powerpop
+	  stores a failure log per backend which stores failed deletions.
+	</P
+><P
+>	  When a backend comes online again, these deletions are first replayed before
+	  messages are made available to users again. This prevents messages from
+	  magically appearing again.
+	</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="redundancy.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="email.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Redundancy</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="redundancy.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Per mailbox configuration items</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

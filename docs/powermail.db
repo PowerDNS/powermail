@@ -1,0 +1,1695 @@
+<!DOCTYPE Book PUBLIC "-//OASIS//DTD DocBook V4.1//EN">
+<Book>
+  <BookInfo>
+    <Title>PowerMail manual</Title>
+    <AUTHOR>
+      <affiliation>
+        <orgname>PowerDNS BV</orgname>
+        <address>
+          <email>pdns@powerdns.com</email>
+        </address>
+	
+      </affiliation>
+    </author>
+    
+    <PubDate>v1.0 $Date: 2002-12-04 13:46:46 $</PubDate>
+    
+    <Abstract>
+      <para>	
+	Explanation of PowerMail concepts, installation and operation.
+      </para>
+    </Abstract>
+  </BookInfo>
+  
+  <chapter><title>PowerMail introduction</title>
+    <?dbhtml filename="introduction.html">
+    <para>
+      PowerMail is a redundant &amp; distributed system for receiving mail and
+      storing it for users. The way PowerMail works is quite unorthodox, this
+      document sets out how the different modules cooperate.
+    </para>
+    <para>
+      PowerMail only receives email and makes it available over POP. Furthermore, incoming email
+      can be forwarded to other email addresses. Although most PowerMail installations will query
+      a relational database for information about email addresses, messages are stored on disk.
+    </para>
+    <para>
+      The real strength of PowerMail lies in:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    One single source of information about mailboxes. No /etc/passwd, no 'recipientdomains', or whatever.
+	    If a mailbox is listed in the userbase, it works.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Ability to scale. Distributed message hosting means that additional machines can be added on the fly without
+	    moving files around or growing filesystems.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Redundancy. Besides distributing messages over multiple machines, additional copies can be stored, leading to 
+	    very high redundancy. Furthermore, it is easily possible to have multiple pop servers online at once, as well
+	    as multiple smtp servers, all talking to the same pool of messages. There is no single point of failure. And no NFS either.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Very high performance. PowerMail is about receving email. There is no queue, email is never bounced. Either
+	    email is accepted or it is not - there is no way for the system to get jammed with incoming email. Messages
+	    are sent straight to the disk. Retrieval works the same way, in reverse. On operating systems supporting this,
+	    <function>sendfile()</function> zerocopy TCP features are exploited for maximum throughput.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      It is best to not compare PowerMail to traditional mailhosting solutions as this can be very confusing.
+      Specifically:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    There is no mapping between mailboxes and UNIX users. All user data is always read from the 
+	    User Base, which is typically a relational database
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	  Mailbox centric and not domain centric. A mailbox exists or it doesn't. There is no reason to configure
+	  which domains PowerMail is to host mailboxes for.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    SMTP and POP daemons can be on different machines than the messages. PowerSMTP and PowerPOP do not access
+	    the disk directly - they contact the backends for that purpose.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Messages can live on multiple machines simultaneously and redundantly. 
+	    A mailbox may span multiple machines.
+	  </para>
+	</listitem>
+      </itemizedlist>
+    </para>
+    <para>
+      PowerMail can best be thought of as mail hosting where adding a new mailbox consists of a single SQL insert statement.
+    </para>
+    <sect1 id="concepts"><title>Concepts</title>
+    <?dbhtml filename="concepts.html">
+    <para>
+      The following concepts are used by PowerMail, followed by their specific meaning within PowerMail:
+    </para>
+    <para>
+      <variablelist>
+	<varlistentry><term>Mailboxes</term>
+	  <listitem>
+	    <para>
+	      PowerMail contains an arbitrary number of Mailboxes. Contrary to existing
+	      practice, a mailbox name includes the domain name. A sample mailbox might be
+	      called 'info@company.biz'. PowerMail does not care which domain a mailbox
+	      resides under - the mailbox name includes the domain.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>Userbase</term>
+	  <listitem>
+	    <para>
+	      To know if a mailbox exists, the Userbase is queried. This will most often
+	      be a relational database. The stock PowerMail distribution works with MySQL.
+	      Besides storing which mailboxes exist, the Userbase also knows about Quotas
+	      and Mailforwarding.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>Messages</term>
+	  <listitem>
+	    <para>
+	      A mailbox consists of messages. Each message is a single file on disk, even
+	      if it has multiple recipients. In other words, a single file can live in
+	      multiple mailboxes simultaneously. This means that a message with thousands
+	      of recipients is stored only once on disk.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>Backends</term>
+	  <listitem>
+	    <para>
+	      The mentioned messages live on backends. Each backend is a very
+	      simpleminded fileserver. Typically, a single backend is used per host,
+	      unless that host has multiple filesystems, in which case a backend is
+	      started for each filesystem. Backends can be additively configured. A backend 
+	      is accessed via the <command>pplistener</command> command.
+	    </para>
+	    <para>
+	      Backends store messages as files on disk. Each message is one file.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>Redundancy &amp; Distributed Hosting</term>
+	  <listitem>
+	    <para>
+	      Each message may live on multiple backends. This can be used both for redundancy as well as for bandwidth purposes. It is possible
+	      to assign storage backends to specific locations and make sure that POP traffic thus remains local.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>Daemons</term>
+	  <listitem>
+	    <para>
+	      Mail is received over the Simple Mail Tranport Protocol, SMTP. It is
+	      transferred to the reader via the Post Office Protocol, version 3, POP3.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>The powersmtp daemon</term>
+	  <listitem>
+	    <para>
+	      The powersmtp daemon listens on the SMTP port (25) and checks with the
+	      Userbase if recipients exist. If they do, the message is received and sent
+	      to a backend. The recipient might also be a forwarded account, in which case
+	      the message is passed to the outgoing SMTP host. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>The powerpop daemon</term>
+	  <listitem>
+	    <para>
+	      The powerpop daemon listens on the pop3 port (110) and checks with the
+	      Userbase if the supplied user and password data exist in the database. If
+	      this is the case, all messages for this mailbox are retrieved from the
+	      backends.
+
+	      Duplicates are filtered out and the unified list is presented to the user.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry><term>The pplistener daemon</term>
+	  <listitem>
+	    <para>
+	      Each backend runs the pplistener daemon which can be likened to a very
+	      simple ftp server. Each pplistener can be in read/write or in readonly mode.
+	      The latter might for example occur if the filesystem is full, or if the
+	      backend is about to be phased out and should accept no new data.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+    <sect1><title>What PowerMail is not, roadmap</title>
+    <?dbhtml filename="roadmap.html">
+      <para>
+	PowerMail only receives email. Sending email is a well solved problem. When email needs to be forwarded, PowerMail
+	needs help from an outgoing mailserver.
+      </para>
+      <para>
+	Furthermore, PowerMail will not satisfy the demanding UNIX user. There is no procmail support, for example. PowerMail
+	is a low-cost bulk email hosting solution. If more functionality is needed within domains served by PowerMail, the use of email forwarding is 
+	suggested. For example, the domain <command>powerdns.com</command> is hosted on PowerMail. Yet <email>support@powerdns.com</email> is a Mailman 
+	mailinglist. This is achieved by forwarding <email>support@powerdns.com</email> to <email>support@mailman.powerdns.com</email>.
+      </para>
+      <para>
+	Currently, there is also no IMAP support but that will change soon.
+      </para>
+      <para>
+	Furthermore, it is also expected that support will be added for piping mail through programs like Amavis and SpamAssassin to 
+	mitigate viruses and spam.
+      </para>
+    </sect1>
+  </chapter>
+  <chapter><title>Release notes</title>
+    <?dbhtml filename="release-notes.html">
+    <para>
+       Before proceeding, you should check the release notes for your PowerMail version, as specified in the name of the distribution file. 
+    </para>
+    <sect1 id="release-1-4"><title>1.4</title>
+      <para>
+	This version now runs on the toplevel domain .TK, replacing the earlier legacy email forwarding system. A lot of work has been done
+	to handle the 1000+ concurrent connections sometimes needed to handle .TK traffic.
+      </para>
+      <para>
+	Furthermore, the Oracle backend (available in source on request) now reads its query from the configuration, allowing
+	it to work with many different schemas.
+      </para>
+    </sect1>
+    <sect1 id="release-1-3-1"><title>1.3.1</title>
+      <para>
+	Important upgrade. This version had the ability to saturate a MySQL server with connections under certain circumstances. PostgreSQL users are 
+	not affected by this bug. 
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      The PowerMail MySQL driver neglected to call mysql_close() on discarded connections beyond the standard 2 allocated ones.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect1>
+    <sect1 id="release-1-3"><title>1.3</title>
+      <para>
+	This release fixes some RFC violations and implements some of the optional bits. 
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      RFC Optional length output added to 'RETR', allowing older Netscape versions
+	      to display a progress bar while downloading. Thanks to Peter van Dijk.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added STAT output to PASS which is appreciated by some POP3 clients.
+	      Thanks to Peter van Dijk.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      RFC violation: STAT used to count already deleted messages. Thanks to Peter van Dijk.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      RFC violation: TOP x 0 displayed entire message instead of only headers. This would have caused
+	      slow behaviour on clients only wishing to see headers. Thanks to Peter van Dijk.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Tiny improvements in logging rationale.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect1>
+    <sect1 id="release-1-2-0"><title>1.2.0</title>
+      <para>
+	This is a big release. We salute Julian Seward for his wonderful work on 
+	<ulink url="http://developer.kde.org/~sewardj/">the Valgrind memory debugger</ulink>. PowerMail is now a better product for it.
+      </para>
+      <para>
+	New features:
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Now spawns multiple database connections if those are needed using a connection pool.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added PostgreSQL support, see <xref linkend="postgresql">.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added catch-all/fallback accounts, see <xref linkend="catch-all">.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added delay after a wrong password to prevent dictionary attacks.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added missing <command>pptool</command> documentation, see <xref linkend="pptool">.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	Bugs fixed:
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Removed memory leaks, thanks to Valgrind
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Increased stability by removing duplicate deletes, thanks to Valgrind
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <command>pplistener</command> now logs under the right program name
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      <command>pplistener</command> did not allow connections to be closed gracefully
+	      and logged a lot of unneeded 'connection reset by peer' messages as a result.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	Works in progress:
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      FreeBSD version - nearly done.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect1>
+    <sect1 id="release-1-1-0"><title>1.1.0</title>
+      <para>
+	This release adds crypted password support, bringing the number of password schemes to three: plaintext, crypt and md5.
+	See <xref linkend="password.schemas"> for details and important information for deployments with plaintext passwords starting
+	with a '{' and containing a '}' further on!
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      Improved SMTP error codes sent out to convince remote MTAs that non-existant accounts
+	      really don't exist.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      {crypt} and {md5} support, plaintext passwords should now preferrably be prefixed with {crypt}. See 
+	      <xref linkend="password.schemas"> for important upgrade information!
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Added some convenience functions to <command>pptool</command> to help calculate md5 hashes and crypts. See
+	      <xref linkend="pptool.convenience">.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      Simplified internal userbase interface to ease integration of LDAP and Oracle backends.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect1>
+
+    <sect1 id="release-1-0-0"><title>1.0.0</title>
+      <para>
+	First public release of PowerMail. Changes since less widely released versions:
+      </para>
+      <para>
+	<itemizedlist>
+	  <listitem>
+	    <para>
+	      RPM neglected to create <filename>/var/powermail</filename>. Thanks to Dave Aaldering for noticing this.
+	    </para>
+	  </listitem>
+	  <listitem>
+	    <para>
+	      init.d scripts now contain hints for RedHat's <command>ntsysv</command> tool. Thanks again to Dave Aaldering.
+	    </para>
+	  </listitem>
+	</itemizedlist>
+      </para>
+    </sect1>
+
+  </chapter>
+  <chapter><title>Advanced users quick installation</title>
+    <?dbhtml filename="quickstart.html">
+    <para>
+      This is for the people that don't do documentation and are ready to deploy now.
+    </para>
+    <para>
+      If you have a mailserver running already, move PowerMail to another IP address. To do so, edit the files in <filename>/etc/powermail</filename>.
+    </para>
+    <para>
+      Now start the daemons:
+      <screen>
+	# /etc/init.d/pplistener start
+	pplistener: started
+	
+	# /etc/init.d/pplistener status
+        pplistener: pplistener functioning ok: +OK OK!
+
+	# /etc/init.d/powersmtp start
+        powersmtp: started
+
+	# /etc/init.d/powersmtp status
+        powersmtp: PowerSMTP functioning ok: 200 OK!
+
+	# /etc/init.d/powerpop start
+	powerpop: started
+
+	# /etc/init.d/powerpop status
+	powerpop: PowerPOP functioning ok: +OK OK!
+      </screen>
+    </para>
+    <para>
+      To check if all is well, run pptool:
+      <screen>
+	# pptool status
+	    127.0.0.1   223 mb, 452547 inodes, load: 0.15, read/write access
+                        223 mb available for writing
+      </screen>
+    <para>
+    </para>
+    <para>
+      This means that mail storage is online and functioning. Now check if the database connection is functioning:
+      <screen>
+	# pptool orphans
+        No orphans!
+      </screen>
+      
+      This verifies that a connection could be made to the 'userbase'. More about orphans and the userbase later. Now 
+      deliver yourself a message. Depending on your setup,
+      you may choose to deliver it by hand over SMTP or to move an MX record to your actual server, and use a regular mailing agent.
+      
+      After delivering a message, we can execute pptool again:
+      <screen>
+	$ pptool dir 
+	127.0.0.1   1 mailbox
+
+	Mailbox              # backends
+	info@example.com  1           
+
+	$ pptool list info@example.com
+	127.0.0.1   done listing 'info@example.com', 1 messages
+
+	1022754059:211363:snapcount.0.1
+	  127.0.0.1:1101	157
+	   * NOT REDUNDANT!
+
+	1 messages, 100% non-redundant
+	0 kilobytes net
+      </screen>
+
+      To retrieve the message, connect to the popserver and login as 'info@example.com', and the message will be there.
+    </para>
+    <para>
+      To add users, edit <filename>/etc/powermail/mailboxes</filename>. There is no need to inform PowerMail of your changes,
+      they are picked up automatically.
+    </para>
+    <para>
+      For more details, see the next chapter. If everything is clear already, head on to <xref linkend="text"> and
+      <xref linkend="multiple">. Otherwise read the rest of the documentation for further explanation.
+    </para>
+  </chapter>
+
+
+  <chapter id="simple-install"><title>Starting a simple MySQL installation</title>
+    <?dbhtml filename="simple-install.html">
+    <para>
+      This is a more elaborate version of the previous chapter, this time connecting to MySQL. 
+      To learn PowerMail operations, it is suggested to start with a simple installation.
+    </para>
+    <sect1><title>Backend hosts: pplistener</title>
+    <?dbhtml filename="pplistener.html">
+      <para>
+	The pplistener actually stores and serves messages to users. There might be many pplisteners but in our simple
+	installation there will be only one. The backend daemon pplistener defaults to using /var/powermail for storing 
+	messages, you may whish to change this in <filename>/etc/powermail/pplistener.conf</filename>.
+      </para>
+      <para>
+	Now start pplistener:
+	<screen>
+# /etc/init.d/pplistener start
+pplistener: started
+# /etc/init.d/pplistener status
+pplistener: pplistener functioning ok: +OK OK!
+</screen>
+      </para>
+    </sect1>
+    <sect1><title>Internet daemons: powerpop &amp; powersmtp</title>
+    <?dbhtml filename="powerpop-and-smtp.html">
+      <para>
+	The most tricky part of these daemons is setting up the communication with the userbase,
+	implemented by default as a MySQL database. This userbase is called 'mysqlplain' and is documented
+	<xref linkend="mysqlplain">.
+      <sect2><title>Setting up MySQL</title>
+	<para>
+	  Connect to MySQL as a user that can create database, and issue the following statements:
+	  <screen>
+	    $ mysql -u root
+	    mysql> create database powermail;
+	    mysql> use powermail;
+	    mysql> CREATE TABLE mboxes (
+	    id int(11) NOT NULL auto_increment,
+	    mbox varchar(128) NOT NULL,
+	    password varchar(20) NOT NULL,
+	    quotaMB int(11) default '0',
+	    isForward tinyint(1) default '0',
+	    fwdDest varchar(80) default NULL,
+	    PRIMARY KEY  (id),
+	    UNIQUE KEY mbox_index (mbox)
+	    );
+	    mysql> INSERT INTO mboxes (mbox,password) VALUES ('info@example.com','s3cr3t!');
+	  </screen>
+	</para>
+	<para>
+	  In this simple example, we will not mention mysql authentication but in real life
+	  you should use 'GRANT' statements to secure readonly access to your database. 
+	</para>
+	<para>
+	  Note that you also generated a mailbox called info@example.com, with 
+	  password 's3cr3t!'.
+	</para>
+      </sect2>
+      <sect2><title>Configuring</title>
+	<para>
+	  Both powersmtp and powerpop need to be able to connect to MySQL. Because of these
+	  shared parameters, both read the file <filename>power.conf</filename> before parsing
+	  their own configuration files.
+	</para>
+	<para>
+	  In power.conf, specify your 'mysql-host', 'mysql-user', and 'mysql-password'. Also set 'userbase'
+	  to 'mysqlplain' to use this MySQL database.
+	</para>
+      </sect2>
+      <sect2><title>Choosing IP addresses &amp; ports to bind to</title>
+	<para>
+	  You are now mostly ready to launch the daemons, but it is likely that a mailer is already running.
+	  This is not a problem but another 
+	  port or IP address for running PowerMail must be chosen. Alternatively, stop your existing mailer.
+	</para>
+	<para>
+	  If you decide to use a separate IP address, create an interface alias for it. This
+	  will differ with your operating system. Next tell PowerMail about it. Again, the power.conf
+	  file is a apropriate file, as all daemons will bind to your IP address. A sample line
+	  might read 'listen-address=a.b.c.d', where a.b.c.d is your IP alias.
+	</para>
+	<para>
+	  Another solution is to bind to another port, which is probably only useful for testing.
+	  As all daemons need a different port, specify this in powersmtp.conf and powerpop.conf 
+	  using the listen-port parameter.
+	</para>
+      </sect2>
+      <sect2><title>Launching</title>
+	<para>
+<screen>
+# /etc/init.d/powersmtp start
+powersmtp: started
+# /etc/init.d/powerpop start
+powerpop:started
+# /etc/init.d/powerpop status
+powerpop: PowerPOP functioning ok: +OK OK!
+# /etc/init.d/powersmtp status
+powersmtp: PowerSMTP functioning ok: 200 OK!
+</screen>
+	</para>
+	<para>
+	  If anything is wrong, most likely with the MySQL connection, these scripts will warn you, but 
+	  launch nonetheless. This is because a temporary database failure should not shutdown
+	  your mailsystem permanently.
+	</para>
+      </sect2>
+      <sect2><title>Testing</title>
+	<para>
+	  Now run the 'pptool' command, installed by default in /usr/bin:
+	  <screen>
+# pptool stat
+127.0.0.1   3792 mb, 568720 inodes, load: 0.01, read/write access
+	  </screen>
+	  If there are any problems, for example with wrong passwords, this 
+	  tool will inform you of them.
+	</para>
+	<para>
+	  Next, we will test a sample delivery and retrieval of a message. 
+	  First delivery, by hand, using the telnet tool. We will assume 
+	  that powersmtp is running on port 25, but you might have chosen
+	  a different port for testing:
+
+<screen>
+$ telnet 127.0.0.1 25
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+220 snapcount PowerSMTP ESMTP
+mail from: ahu@ds9a.nl
+250 Started message &lt;1006724301:884450:snapcount.0&gt; for sender &lt;ahu@ds9a.nl&gt;
+rcpt to: info@yourdomain.com
+250 Added recipient 'info@yourdomain.com' to message &lt;1006724301:884450:snapcount.0&gt;
+data
+354 Enter message, ending with '.' on a line by itself. Quota available: 50000 kilobytes
+From: ahu@ds9a.nl
+To: info@yourdomain.com
+Subject: test
+
+testing 1 2 3
+.
+250 Delivered message &lt;1006724301:884450:snapcount.0&gt; successfully to all recipients
+quit
+221 bye
+Connection closed by foreign host.
+</screen>
+	</para>
+	<para>
+Now let's see if this message has arrived with the 'pptool' command:
+<screen>
+# pptool list info@yourdomain.com
+127.0.0.1        done listing 'info@yourdomain.com', 1 messages
+
+1006724301:884450:snapcount.0.1
+	127.0.0.1               162
+	1.2.3.4                 162
+
+1 messages, 0% non-redundant
+0 kilobytes net
+</screen>
+	</para>
+	<para>
+	  Next, we'll try to actually retrieve the message:
+
+<screen>
+# telnet 127.0.0.1 110
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
++OK snapcount
+user info@yourdomain.com
++OK 
+pass 31337pw
++OK 
+list
++OK
+1 162
+.
+retr 1
++OK
+Received: from 127.0.0.1:36724 by snapcount (PowerMail) with id <1006724301:884450:snapcount.0>
+From: ahu
+To: ahu@powerdns.org
+Subject: test
+
+testing 1 2 3
+.
+quit
++OK 
+Connection closed by foreign host.
+	  </screen>
+	</para>
+      </sect2>
+    </sect1>
+    </chapter>
+  <chapter id="configuration">
+    <?dbhtml filename="configuration.html">
+    <title>Configuration</title>
+    <para>
+      PowerSMTP and PowerPOP share many common configuration items. Prime among these are the userbase connection details
+      and possible <command>pplistener</command> backend password details.
+    </para>
+    <para>
+      To enable easy configuration, both PowerSMTP and PowerPOP first parse <filename>power.conf</filename>, followed by 
+      <filename>powersmtp.conf</filename> and <filename>powerpop.conf</filename> respectively.
+    </para>
+    <para>
+      PPListener is different and does not need userbase configuration and therefore does not parse <filename>power.conf</filename>
+      but only <filename>pplistener.conf</filename>.
+    </para>
+    <sect1><title>All settings</title>
+      <para>
+	Common to PowerSMTP and PowerPOP:
+	<variablelist>
+	  <varlistentry>
+	    <term>backends</term>
+	    <listitem>
+	      <para>
+		Which backends to use for storing and retrieving messages. Syntax: group:priority:host. See <xref linkend="multiple"> for details.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>pplistener-password</term>
+	    <listitem>
+	      <para>
+		Password to use when authenticating with PPListener backends.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>config-name</term>
+	    <listitem>
+	      <para>
+		Name of this virtual configuration. FIXME: write chapter on virtual configurations
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term>listen-address</term>
+	    <listitem>
+	      <para>
+		IP address to bind to. Defaults to 0.0.0.0 which means 'all interfaces'.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term>listen-port</term>
+	    <listitem>
+	      <para>
+		Port to bind to. Defaults to 25 for PowerSMTP and to 110 for PowerPOP.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
+	    <term>max-userbase-connections</term>
+	    <listitem>
+	      <para>
+		Maximum number of simultaneous database connections to open. Multiple connections share a single connection,
+		so there is no need to set this very high. Defaults to 3.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>max-userbase-spares</term>
+	    <listitem>
+	      <para>
+		A few userbase connections are kept on hand, even if they are not needed. This specifies how many spares can exist. If set to 0,
+		connections will be opened and closed very often.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  
+	  <varlistentry>
+	    <term>userbase</term>
+	    <listitem>
+	      <para>
+		Which userbase to query for mailbox data. Defaults to 'mysqlplain'. See <xref linkend="userbases">.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+    	  <varlistentry>
+	    <term>run-as-gid</term>
+	    <term>run-as-uid</term>
+	    <listitem>
+	      <para>
+		Credentials to switch to after acquiring priviledged ports.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+    	  <varlistentry>
+	    <term>daemon=[yes|no]</term>
+	    <listitem>
+	      <para>
+		To run as a daemon or not. 'no' can be useful for debugging purposes.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
+      <para>
+	PowerPOP and PowerSMTP also share userbase connection details for which see <xref linkend="userbases">.
+      </para>      
+    <chapter id="multiple"><title>Moving beyond a single host</title>
+    <?dbhtml filename="multiple-hosts.html">
+    <para>
+      The true power of PowerMail only comes to light when employing multiple machines. To access multiple storage backends 
+      (which each run <command>pptalker</command>), these need to be defined in <filename>power.conf</filename>.
+      To do so, define the 'backends' configuration field, which lists each backend and which 'group' it belongs to aswell as its priority.
+    </para>
+    <para>
+      Each backend is listed according to the following syntax: 'group:priority:ipaddress'. Below a list of sample configurations and what they mean:
+
+      <variablelist>
+	<varlistentry>
+	  <term>backends=1:1:192.168.0.1, 2:1:192.168.0.2</term>
+	  <listitem>
+	    <para>
+	      Mail is stored over 192.168.0.1 and 192.168.0.2. If redundancy-target is set to 2, both backends will always receive a copy
+	      of each message. If this target isn't met, email reception is denied. Each server is in its own group, which tells PowerMail
+	      that the two hosts are mutually redundant.
+	    </para>
+	    <para>
+	      If <function>redundancy-target</function> is set to 1, the default, email will be sent to the backend with the most free disk space 
+	      available. Alternatively, if <function>spread-load</function> is specified, it will be sent to the host with the lowest load average.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>backends=1:1:192.168.0.1, 1:1:192.168.0.2, 1:2:192.168.100.100</term>
+	  <listitem>
+	    <para>
+	      Mail is stored on either 192.168.0.1 or 192.168.0.2, according to the <function>spread-load</function> or <function>spread-disk</function>
+	      specification above. If both of these are unavailable, mail is stored on 192.168.100.100. 
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>backends=1:1:192.168.0.1, 2:1:192.168.0.2, 2:2:192.168.100.100</term>
+	  <listitem>
+	    <para>
+	      With <function>redundancy-target=2</function>, mail is normally stored on 192.168.0.1 and 192.168.0.2. If 192.168.0.2 is down,
+	      it will be stored on 192.168.0.1 and 192.168.100.100.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+    <para>
+      When not operating over localhost (127.0.0.1) configuring a password is mandatory. The password must be identical over all nodes in your
+      PowerMail constellation. It is configured in <filename>power.conf</filename> and <filename>pplistener.conf</filename>.
+    </para>
+    <para>
+      This is advised even when running on localhost!
+    </para>
+  </chapter>
+
+  <chapter><title>Control and insight into powermail</title>
+    <?dbhtml filename="insight.html">
+    <sect1 id="pptool"><title>pptool</title>
+      <para>
+	A large powermail installation might well span tens of hosts and see thousands of mailboxes created and deleted each week. To cope with this, the 
+	program <command>pptool</command> has been provided.
+      </para>
+      <para>
+	As <command>pptool</command> also reads the common configuration file, it is aware of all backend storage pptalkers available, and can list or modify their
+	contents.
+      </para>
+      <para>
+	The following commands are available:
+	<variablelist>
+	  <varlistentry><term>status</term>
+	    <listitem>
+	      <para>
+		Lists the status of all pptalkers, including the amount of free diskspace and inodes, the load average and importantly, the read/write status.
+		It also lists the combined amount of diskspace available for writing.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>dir [backend1] [backend2]</term>
+	    <listitem>
+	      <para>
+		Lists all mailboxes in all backends. Specific backends can also be listed and only this will be queried then.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>orphans</term>
+	    <listitem>
+	      <para>
+		Lists all mailboxes that do exist on backends, but have no entry in the userbase. These mailboxes are 'orphaned' and were not cleaned up 
+		properly.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>purge</term>
+	    <listitem>
+	      <para>
+		Purges a mailbox, wether it is in the database or not.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>purge-orphans</term>
+	    <listitem>
+	      <para>
+		Creates a list of orphans and purges them. Dangerous command!
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>list mailbox</term>
+	    <listitem>
+	      <para>
+		Lists the message ids in a mailbox and on which backends it is stored, and if redundancy is met
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>block backend</term>
+	    <listitem>
+	      <para>
+		Sets a backend to blocked, which means that it is administratively read only. No new mail will be accepted at that backend. Useful
+		for phasing out servers, as deletes will be applied. Leaving a backend blocked will slowly empty it as users retrieve and delete mail.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>unblock backend</term>
+	    <listitem>
+	      <para>
+		Reverse operation.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>usage mailbox</term>
+	    <listitem>
+	      <para>
+		Prints the quota, in kilobytes, of a mailbox followed by its actual usage, separated by a colon. Suitable for machine parsing.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
+      <sect2 id="pptool.convenience">
+	<title>Convenience commands (password hashing)</title>
+	<para>
+	  Besides controling PowerMail nodes, <command>pptool</command> can also be used to calculate UNIX crypt()s and MD5 hashes
+	for use in userbases to store passwords as described in <xref linkend="password.schemas">.
+      </para>
+      <para>
+	<variablelist>
+	  <varlistentry><term>crypt password</term>
+	    <listitem>
+	      <para>
+		Prints the UNIX crypt(3) of the password supplied on the commandline.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>md5 password</term>
+	    <listitem>
+	      <para>
+		Prints the UNIX md5 hash of the password supplied on the commandline.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+	</para>
+      </sect2>
+    </sect1>
+    <sect1><title>mboxdir</title>
+    <?dbhtml filename="mboxdir.html">
+      <para>
+	To find out where an actual mailbox lives on disk, the <command>mboxdir</command> command is provided. It accepts a single email
+	address as a parameter and outputs the calculated directory. Please note that it will always have output - the userbase is not contacted to
+	determine if this mailbox is actually present in PowerMail.
+      </para>
+      <para>
+	This is actually a feature as it allows the operator to find orphaned mailboxes. It is useful to do the following:
+	<screen>
+	  ~# cd $(mboxdir info@example.com)
+	  /var/messages/78/34/info@example.com# ls
+	  cur  tmp
+	  /var/messages/78/34/info@example.com# 
+	  </screen>
+      </para>
+    </sect1>
+    
+  </chapter>
+  <chapter><title>Redundancy</title>
+    <?dbhtml filename="redundancy.html">
+    <para>
+      PowerSmtp makes sure that the redundancy target is met before announcing to the sending mailserver that
+      the message was properly received. In this way, messages are always stored at at least the configured minimum redundancy.
+    </para>
+      <para>
+      <variablelist>
+	<varlistentry>
+	  <term>group</term>
+	  <listitem>
+	    <para>
+	      Each backend is assigned to a group. Backends within a group do not generate
+	      redundancy - this can be used to make sure that email is spread over
+	      different physical locations so that each site has a copy of all articles.
+	    </para>
+	    <para>
+	      Multiple partitions or filesystems residing withing a same host are also
+	      candidates to reside in the same group.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Priority</term>
+	  <listitem>
+	    <para>
+	      Data is always stored on the highest-priority available host. By assigning
+	      different priorities, it is possible to have 'hot spare' servers which can
+	      instantly take the place of failed or replaced boxes.
+	    </para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term>Load &amp; diskspace</term>
+	  <listitem>
+	    <para>
+	      Given equal priorities, powersmtp can be instructed to choose a random
+	      server, or prefer the one with the most diskspace available or the one with
+	      the lowest load. 
+	    </para>
+	    <para>
+	      Your choice will depend on the workload presented.
+	    </para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+    <sect1><title>Goals</title>
+    <?dbhtml filename="goals.html">
+      <para>
+	It is important to determine what targets we want to meet. PowerMail tries to
+	maximize perceived uptime - users must at all times be able to access their
+	mailboxes, which should contain as much of their mail as possible. Access
+	to POP is never disabled.
+      </para>
+      <para>
+	Mail delivery however is halted as soon as the minimum configured redundancy cannot 
+	be guaranteed,
+	remote mailers will have to wait until more backends become available. As
+	this is not directly perceived by the user, disabling deliveries is
+	preferred over allowing non-redundant deliveries.
+      </para>
+    </sect1>
+    <sect1><title>Redundancy in practice</title>
+    <?dbhtml filename="redundancy-practice.html">
+      <para>
+	When configured to operate in redundant mode, PowerMail only considers a message 
+	delivered when it is stored on more than
+	2 servers residing in different groups, and that number can be raised. If
+	less than 2 servers are available, powersmtp starts to refuse mail delivery,
+	giving out temporary 'please try later' errors. This puts the burden of
+	queueing on the delivering agent, where it belongs.
+      </para>
+      <para>
+	When retrieving mail, all backends are queried for which messages they have
+	listed for that mailbox. In case of drastic failure, messages might start to
+	disappear from a mailbox and return only when backends a restored.
+      </para>
+      <sect2><title>Queued deletions</title>
+	<para>
+	  A backend that has been out of service might on return cause messages that
+	  the user has deleted to inadvertently reappear. To prevent this, powerpop
+	  stores a failure log per backend which stores failed deletions.
+	</para>
+	<para>
+	  When a backend comes online again, these deletions are first replayed before
+	  messages are made available to users again. This prevents messages from
+	  magically appearing again.
+	</para>
+      </sect2>
+    </sect1>
+  </chapter>
+
+  <chapter><title>Per mailbox configuration items</title>
+    <?dbhtml filename="email.html">
+    <para>
+      Each email address within PowerMail has an entry in the Userbase. Any email address offered to PowerMail over the internet
+      is in three categories, 'Unknown', 'Hosted', or 'Forward'. Unkown email addresses are refused immediately - email is not accepted first
+      and bounced later.
+    </para>
+    <para>
+      Mail for Hosted addresses is stored on any of the <function>pptalker</function> backends, and can from there on be retrieved over 
+      the POP interface, if the proper password is supplied.
+    </para>
+    <para>
+      Email is not stored infinitely - a quota can be set which limits the amount of storage any mailbox can occupy for itself.
+      Note that due to the hardlinking nature of PowerMail, it is possible for individual mailboxes to exceed their quota if the 
+      messages are shared with other users. This means that a 'message to everybody' will always arrive, even if the user is over quota. See also
+      <xref linkend="quotas">.
+    </para>
+    <para>
+      'Forward' addresses are proxied directly to an outgoing mailserver and do not enter PowerMail as such. PowerMail as such does not send out messages,
+      it leaves that job to a outgoing capable mailserver. 
+    </para>
+    <sect1 id="password.schemas"><title>Password schemas</title>
+      <para>
+	Passwords can be stored in:
+	<itemizedlist>
+	  <listitem><para>Plaintext ({plain})</para></listitem>
+	  <listitem><para>Standard unix crypt(3) ({crypt})</para></listitem>
+	  <listitem><para>Standard unix md5 ({md5})</para></listitem>
+	</itemizedlist>
+      </para>
+      <para>
+	PowerMail 1.0.0 only supported plaintext passwords and these did not need to be prefixed in any way. So, to have a
+	user with password 's3cr3t!', any userbase would contain just 's3cr3t!'. As of version 1.1.0 however, multiple schemas are
+	available.
+      </para>
+      <para>
+	The schema is indicated by prefixing the password or hash in the database with a marker. For example, the new preferred way to
+	store the password above is '{plain}s3cr3t!'. When using UNIX crypt, it might look like this: '{crypt}/CFF1gJfAFAqM'. When 
+	using md5 hashes, a $1$ prefix needs to be present, and our database might contain 
+	'{md5}$1$Wh/8PmbX$tLpq3mPsvT5gdVJcVVYXA1' which matches 's3cr3t!'.
+      </para>
+      <para>
+	Crypts and hashes can be calculated using the <command>pptool</command> convenience functions <function>crypt</function>
+	and <function>md5</function> as described in <xref linkend="pptool.convenience">.
+      <para>
+	<note>
+	  <para>
+	    Apache htpasswd generates MD5 hashes which are not compatible with PowerMail. PowerMail is compatible with
+	    <filename>/etc/shadow</filename> or <filename>/etc/passwd</filename> hashes.
+	  </para>
+	</note>
+      </para>
+      <para>
+	For historical reasons, unprefixed passwords are treated as if they were prefixed by '{plain}'. However, this means
+	that users which previously had passwords that started with a '{' and contained a '}' somewhere are no longer able to login.
+      <para>
+	<warning>
+	  <para>
+	    When upgrading from 1.0.0 or earlier, it is highly advised to prefix all plaintext passwords with {plain} in all
+	    userbases! Not doing so may cause users with passwords starting with '{' and containg a '}' to not be able to log in!
+	  </para>
+	</warning>
+      </para>
+      <para>
+	In the near future, '{sha1}' is also expected to make an appearance.
+      </para>
+    </sect1>
+    <sect1 id="forwarding"><title>Forwarding</title>
+    <?dbhtml filename="forwarding.html">
+      <para>
+	To enable forwarding to work, an additional outgoing mailserver is needed. Any one will do. PowerMail 'preforwards' the email so
+	the outgoing mailserver does not need access to the database. To configure a forwarder, set the <command>smtp-sender-address</command>
+	and <command>smtp-sender-port</command> parameters in <filename>powersmtp.conf</filename>
+      </para>
+      <para>
+	Make very sure that these settings do not point to another PowerMail configuration as this will lead to bouncing email!
+      </para>
+      <para>
+	PowerDNS has verified the proper operation of PowerMail with qmail, postfix and sendmail, all fine outgoing mailservers.
+      </para>
+    </sect1>
+    <sect1 id="catch-all"><title>Catch-all addresses</title>
+      <para>
+	A catch-all address is one that, in the absence of a mailbox with that exact name, receives all mail for the domain
+	in which it resides.
+      </para>
+      <para>
+	So, if the accounts <email>info@example.com</email> and <email>sales@example.com</email> and <email>*@example.com</email>
+	exist, and mail comes in for <email>sales@example.com</email>, it goes to that mailbox.
+      </para>
+      <para>
+	Mail for <email>support@example.com</email> is handled by the <email>*@example.com</email> account. This may be a forward 
+	or even a mailbox.
+      </para>
+      <para>
+	To retrieve mail from a catch all mailbox, either use login '*@example.com' or plain 'example.com' or even 'whatever@example.com'.
+      </para>
+    </sect1>
+  </chapter>
+  <chapter id="userbases"><title>The Userbases</title>
+    <?dbhtml filename="userbases.html">
+    <para>
+      PowerMail comes with a number of userbases. Some of those are documented here. The default 
+      userbase is currently 'text'. Which userbase to employ should be configured in <filename>power.conf</filename>
+      by setting the <command>userbase</command> parameter.
+    </para>
+    <sect1 id="mysqlplain"><title>MySQL Plain</title>
+    <?dbhtml filename="mysqlplain.html">
+      <para>
+	This is purely a mail table with no hooks into the PowerDNS Platform. 
+	Use it if email is entirely separate from your DNS products.
+      </para>
+      <para>
+	This is the userbase that corresponds to the schema as shown in <xref linkend="simple-install">. It is called 'mysqlplain'.
+      </para>
+      <para>
+	The fields in the <function>mboxes</function> table are described below:
+	<variablelist>
+	  <varlistentry>
+	    <term>id</term>
+	    <listitem>
+	      <para>
+		Not read by PowerMail but may well be used to link mailboxes to other information.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>mbox</term>
+	    <listitem>
+	      <para>
+		Full name of this mailbox and also the email address that corresponds to it. 
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>password</term>
+	    <listitem>
+	      <para>
+		Password needed to access this mailbox. 
+		<note>
+		  <para>
+		    See <xref linkend="password.schemas"> for how to encode passwords in plaintext or as a hash.
+		  </para>
+		</note>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>quotaMB</term>
+	    <listitem>
+	      <para>
+		Quota of this mailbox, in megabytes. 0 stands for unlimited.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>isForward</term>
+	    <listitem>
+	      <para>
+		If true, this mailbox is a forward to the address specified in fwdDest. Will only work if an SMTP forwarder has been defined,
+		see <xref linkend="forwarding">.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>fwdDest</term>
+	    <listitem>
+	      <para>
+		If this mailbox is forwarded, this should contain a single email address to which email should be forwarded.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
+      <sect2><title>Configuration options</title>
+	<para>
+	  This userbase needs to be able to find the MySQL database and connect to it with the proper credentials.
+	  For this purpose, the following entries can be set in <filename>power.conf</filename> or, if desired, <filename>powersmtp.conf</filename>
+	  and <filename>powerpop.conf</filename>:
+	</para>
+	<para>
+	  <variablelist>
+	    <varlistentry>
+	      <term>mysql-database</term>
+	      <listitem>
+		<para>
+		  Database name to connect to. Defaults to 'powermail'.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>mysql-host</term>
+	      <listitem>
+		<para>
+		  Location of MySQL installation. Defaults to 127.0.0.1.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>mysql-password</term>
+	      <listitem>
+		<para>
+		  Password to connect with. Defaults to the emtpy string.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>mysql-user</term>
+	      <listitem>
+		<para>
+		  User to connect as. Defaults to the empty string, which means 'current unix username'.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	  </variablelist>
+	</para>
+      </sect2>
+
+    </sect1>
+    <sect1><title>MySQL PowerDNS</title>
+    <?dbhtml filename="mysqlpdns.html">
+      <para>
+	This userbase connects to the database layout as used by the PowerDNS Platform Layer 1. For documentation, see there.
+      </para>
+      <para>
+	FIXME: write more
+      </para>
+    </sect1>
+    <sect1><title>MySQL Simple PowerDNS</title>
+    <?dbhtml filename="mysqlsimple-pdns.html">
+      <para>
+	This userbase connects to the database layout as used by the PowerDNS 'mysqlbackend'. For users of PowerDNS Platform 0.
+      </para>
+      <para>
+	FIXME: write more
+      </para>
+
+    </sect1>
+    <sect1 id="postgresql"><title>Generic PostgreSQL</title>
+    <?dbhtml filename="postgresql.html">
+      <para>
+	The PostgreSQL userbase is flexible in that it allows the user to specify a SQL query from the configuration. The default
+	query corresponds to the following schema:
+      </para>
+      <para>
+	<screen>
+create table mboxes (
+ id		 SERIAL PRIMARY KEY,
+ mbox		 VARCHAR(255) NOT NULL,
+ password	 VARCHAR(50) DEFAULT NULL,
+ quotaMB	 INT DEFAULT NULL,
+ isForward       INT DEFAULT NULL,
+ fwdDest         VARCHAR(80) DEFAULT NULL
+);
+CREATE UNIQUE INDEX mbox_index ON mboxes(mbox);
+GRANT SELECT ON mboxes TO powermail;
+	</screen>
+      </para>
+      <para>
+	The default query is:
+	<screen>
+	  select quotaMB,isForward,fwdDest,password from mboxes where mbox='%s'
+	</screen>
+      </para>
+      <sect2><title>Configuring PostgreSQL connectivity</title>
+	<para>
+	  The following parameters are available to configure the PostgreSQL userbase:
+	</para>
+	<para>
+	  <variablelist>
+	    <varlistentry>
+	      <term>postgresql-database</term>
+	      <listitem>
+		<para>
+		  Database name to connect to. Defaults to 'powermail'.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>postgresql-host</term>
+	      <listitem>
+		<para>
+		  Location of PostgreSQL installation. Defaults to 127.0.0.1. Can also be set to a path, a useful setting
+		  to try is <filename>/tmp</filename>.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>postgresql-password</term>
+	      <listitem>
+		<para>
+		  Password to connect with. Defaults to the emtpy string.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>postgresql-user</term>
+	      <listitem>
+		<para>
+		  User to connect as. Defaults to the empty string, which means 'current unix username', often 'root' in the 
+		  case of PowerMail being launched from bootscripts.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>postgresql-query</term>
+	      <listitem>
+		<para>
+		  Query to perform. Can be changed at will but must return data in a specified order, see below.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	  </variablelist>
+	</para>
+	<para>
+	  A typical session setting up PostgreSQL might be:
+	  <screen>
+$ createdb powermail
+CREATE DATABASE
+$ createuser powermail
+Shall the new user be allowed to create databases? (y/n) n
+Shall the new user be allowed to create more new users? (y/n) n
+CREATE USER
+$ psql powermail
+powermail=# create table mboxes (
+powermail(#  id SERIAL PRIMARY KEY,
+powermail(#  mbox VARCHAR(255) NOT NULL,
+powermail(#  password VARCHAR(50) DEFAULT NULL,
+powermail(#  quotaMB INT DEFAULT NULL,
+powermail(#  isForward       INT DEFAULT NULL,
+powermail(#  fwdDest         VARCHAR(80) DEFAULT NULL
+powermail(# );
+NOTICE:  CREATE TABLE will create implicit sequence 'mboxes_id_seq' for SERIAL column 'mboxes.id'
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index 'mboxes_pkey' for table 'mboxes'
+CREATE
+powermail=# CREATE UNIQUE INDEX mbox_index ON mboxes(mbox);
+CREATE
+powermail=# GRANT SELECT ON mboxes TO powermail;
+GRANT
+powermail=# insert into mboxes (mbox,password,quotaMB) values ('info@example.com','{plain}s3cr3t!',1);
+INSERT 142969 1
+</screen>
+	</para>
+	<para>
+	  This gives SELECT rights to a user called 'powermail'. Now add the following to the <filename>power.conf</filename>
+	  configuration file:
+	  <screen>
+	    # echo userbase=postgresql > power.conf
+	    # echo postgresql-user=powermail >> power.conf
+	  </screen>
+	</para>
+	<para>
+	  <note>
+	    <para>
+	      If you are sure that PostgreSQL is running locally but the connection fails with 'could not connect to server: Connection refused',
+	      try adding 'postgresql-host=/tmp' to power.conf
+	    </para>
+	  </note>
+	</para>
+	<para>
+	  Now try launching <command>powerpop</command> and <command>powersmtp</command>, the user <email>info@example.com</email> should now
+	  exist.
+	</para>
+      </sect2>
+      <sect2><title>Custom queries &amp; schema description</title>
+	<para>
+	  Any query supplied must return the same values as the default one, and in the same order. The fields are:
+	  <variablelist>
+	    <varlistentry>
+	      <term>mbox</term>
+	      <listitem>
+		<para>
+		  Full name of this mailbox and also the email address that corresponds to it. 
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>password</term>
+	      <listitem>
+		<para>
+		  Password needed to access this mailbox. 
+		  <note>
+		    <para>
+		      See <xref linkend="password.schemas"> for how to encode passwords in plaintext or as a hash.
+		    </para>
+		  </note>
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>quotaMB</term>
+	      <listitem>
+		<para>
+		  Quota of this mailbox, in megabytes. 0 stands for unlimited.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>isForward</term>
+	      <listitem>
+		<para>
+		  If true, this mailbox is a forward to the address specified in fwdDest. Will only work if an SMTP forwarder has been defined,
+		  see <xref linkend="forwarding">.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>fwdDest</term>
+	      <listitem>
+		<para>
+		  If this mailbox is forwarded, this should contain a single email address to which email should be forwarded.
+		</para>
+	      </listitem>
+	    </varlistentry>
+	  </variablelist>
+	</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="text"><title>Text based</title>
+    <?dbhtml filename="text-base.html">
+      <para>
+	This userbase parses a simple textfile with mailbox information. The default location of this file is 
+	<filename>/etc/powermail/mailboxes</filename>. To select, set <command>userbase=text</command>.
+      </para>
+      <para>
+	Sample configuration:
+	<screen>
+/* mailbox with account info@example.com (or info%example.com) */
+
+address "info@example.com" {
+  password "{plain}s3cr3t!";  # plaintext!
+  quota 250k;
+};
+
+address "md5@example.com" {
+  password "{md5}$1$shAcLd5E$7VrUnZ46/LkOmychA.Jca0"; # md5 hash of 's3cr3t!'
+};
+
+address "sales@example.com" {
+	forward "info@example.com";
+};
+	  </screen>
+      </para>
+      <para>
+	Note the need for a semicolon after the closing brace of each completed address statement. Furthermore, each statement within 
+	also needs a semicolon.
+      </para>
+      <para>
+	If no quota is specified, it is infinite. To specify kilobytes, use the suffix 'k', megabytes 'm'.
+      </para>
+      <para>
+	If this file is changed, it is reread instantly. Any parsing errors are noted in the log and in that 
+	case the old configuration is retained in memory. A reparse will be attempted for each new message coming in, or 
+	each attempt to check email.
+      </para>
+      <para>
+	Each new message will cause the file to be reparsed, until it is read succesfully. 
+      </para>
+      <para>
+	Even though this backend is quite simplistic, it parses 50.000 mailboxes within a second on a commodity server. In case 
+	a mailbox is present multiple times, behaviour is undefined. The first, last or even middle appearances may be chosen.
+      </para>
+      <sect2><title>Configuration</title>
+	<para>
+	  The location of the textfile is configured with the <command>text-base</command> setting.
+	</para>
+      </sect2>
+    </sect1>
+    <sect1><title>RADIUS</title>
+      <para>
+	Email <email>pdns@powerdns.com</email> if you are interested in a RADIUS userbase, in which case we will expedite its development.
+      </para>
+    </sect1>
+
+    <sect1><title>LDAP</title>
+      <para>
+	Email <email>pdns@powerdns.com</email> if you are interested in an LDAP userbase, in which case we will expedite its development.
+      </para>
+    </sect1>
+  </chapter>
+  <chapter><title>In depth technicalities</title>
+    <?dbhtml filename="indepth.html">
+    <para>
+      Each backend is a pplistener daemon. A pplistener stores all messages under
+      one doubly hashed directory, so a typical Maildir might 
+      be '/var/powermail/messages/01/04/info@company.biz/'. Because all mail is stored in a
+      single filesystem, it is possible for a file to be present in many
+      mailboxes, and this is in fact how PowerMail operates.
+    </para>
+    <para>
+      The operating system will only actually store one (1) copy of a message, no
+      matter how many recipients that message has on that filesystem. It will be
+      deleted when it is removed from the last mailbox that references the
+      message.
+    </para>
+    <para>
+      This allows for great space savings and, more importantly, for 'straight
+      paper path' delivery.
+    </para>
+    <sect1><title>Maildir and queue-less delivery</title>
+
+      <para>
+	Each mailbox is more-or-less a standard Qmail Maildir, which means that new
+	messages are written in the 'tmp' subdirectory and are moved to 'cur'
+	subdirectory then they are ready.
+      </para>
+      <para>
+	Because of this, no locking is needed, and messages can be delivered
+	atomically to many recipients, with intermediate failure at worst causing a
+	duplicate delivery.
+      </para>
+      <para>
+	Because of the use of hardlinks, it is possible to deliver messages straight
+	into the Maildir, without use of a queue in between. This makes mail
+	delivery very fast and robust.
+      </para>
+    </sect1>
+    <sect1 id="quotas"><title>Quotas</title>
+    <?dbhtml filename="quotas.html">
+      <para>
+	Quotas in PowerMail work somewhat different from other mail solutions. A message with 
+	a single recipient is quite standard: all messages on all backends are accounted for, whereby each
+	message is calculated to use 4kb minimum, which is actually in line with the amount of disk space occupied.
+      </para>
+      <para>
+	If there is room for the new message, it is stored.
+      </para>
+      <para>
+	However, if a message has multiple recipients, things are a bit different. As PowerMail uses hardlinks
+	to deliver messages space efficiently, a message is accepted if at least *one* of the recipients has enough
+	room in his mailbox.
+      </para>
+      <para>
+	This has the additional benefit of making sure that 'messages to everybody' never bounce. Furthermore, users perceive
+	more diskspace than they actually use.
+      </para>
+    </sect1>
+      
+  </chapter>
+  <chapter><title>Best practice setups</title>
+    <?dbhtml filename="best-practice.html">
+    <para>
+      An ideal setup consists of at least three servers. This guarantees that a
+      single-machine failure does not hamper service in any way. As there are
+      still two servers available, which together contain all messages, both
+      delivery and retrieval continue. There is no lack of functionality.
+    </para>
+    <para>
+      A futher failure will cause part of the messages (around 33%) to disappear,
+      but mail retrieval will still be possible. Mail deliveries will cease.
+    </para>
+    <sect1><title>High redundancy</title>
+      <para>
+	Six machines in three groups with a redundancy target of 3 means that any
+	two servers can fail before messages might be lost. In other words, 33% of
+	your servers may fail before problems occur.
+      </para>
+      <para>
+	Mail deliver patterns then look like this:
+<screen>
+	1 2   3 4   5 6
+1	x     x     x
+2	x     x       x
+3	x       x   x
+4	x       x     x
+5	  x   x     x
+6	  x   x       x
+7	  x     x   x
+8	  x     x     x
+</screen>
+      </para>
+      <para>
+	If servers 1, 2 and 3 fail, no mail is lost. In the general case, mail might
+	only be lost if all groups lose a server. Otherwise, at least one undamaged
+	group survives and by our configuration, each group has a copy of all
+	mesages.
+      </para>
+      <para>
+	The chance for three failures to fall into three groups is 1-((3/3) * (2/3)
+	* (1/3))=1/3. So only in one-third of the cases, there is a chance of all
+	groups losing a message. This only happens if the failures exacly strike the
+	three servers that house your message, for which the chance is
+	(1/2)*(1/2)*(1/2)=1/8. 
+      </para>
+      <para>
+	Summarizing, the compound expected loss of mail in case of 50% failure is
+	(1/3)*(1/8)=1/24, which is around 4%. 
+      </para>
+      <para>
+	There is a 1/3 chance that messages can continue to be stored redundantly,
+	but in that case, 12.5% of already present mail is lost.
+      </para>
+      <para>
+	There is a 2/3 chance that mail reception is disabled, but not a single
+	message is lost.
+      </para>
+    </sect1>
+  </chapter>
+  </book>
+
+
