@@ -125,6 +125,7 @@ public:
     args().addParameter("mysql-host","MySQL host to connect to","127.0.0.1");
     args().addParameter("mysql-user","MySQL user to log on as","");
     args().addParameter("mysql-password","MySQL password","");
+    args().addParameter("mysql-socket","MySQL socket","");
   }
 };
 

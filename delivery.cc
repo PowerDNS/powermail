@@ -61,40 +61,7 @@ void Delivery::reset()
   d_destinations.clear();
 }
 
-int Delivery::setupMaildir(const char *dir, string *response)
-{
-   if(mkdir(dir,0700)==-1) 
-   {
-      if(errno!=EEXIST)  { /* mailbox doesn't exist and can't be made */
-	*response="-ERR Error creating Maildir: "+string(strerror(errno));
-	return -1;
-      }
-      /* it exists, so go there */
-      if(chdir(dir)==-1)
-      {
-	*response="-ERR Error doing chdir() to "+string(dir)+string(strerror(errno));
-	return -1;
-      }
-   }
-   else
-   {
-      if(chdir(dir)==-1)
-      {
-	*response="-ERR Error doing chdir() to "+string(dir)+string(strerror(errno));
-	return -1;
 
-      }
-      
-      
-      if(mkdir("cur",0700)==-1 || mkdir("tmp",0700))
-      {
-	*response="-ERR Error doing mkdir() in "+string(dir)+string(strerror(errno));
-	return -1;
-      }
-   }
-   return 0;
-   /* we now have a mailbox, and we are in it */
-}
 
 string Delivery::dohash(const string &mbox, int *x, int *y)
 {
@@ -130,18 +97,17 @@ int Delivery::makeHashDirs(const string &mbox, string *response)
     *response="Unable to make d_mailroot "+d_mailroot+": "+string(strerror(errno));
     return -1;
   }
-  chdir(d_mailroot.c_str());
-  char tmp[8];
-  snprintf(tmp,3,"%02d",x);
+  char tmp[10];
+  snprintf(tmp,4,"/%02d",x);
 
-  if(mkdir(tmp,0700)<0 && errno!=EEXIST) {
+  if(mkdir((d_mailroot+tmp).c_str(),0700)<0 && errno!=EEXIST) {
     *response="Unable to make mail root level 1 hash directory "+string(d_mailroot)+"/"+string(tmp)+": "+string(strerror(errno));
     return -1;
   }
 
-  snprintf(tmp,7,"%02d/%02d",x,y);
+  snprintf(tmp,8,"/%02d/%02d",x,y);
 
-  if(mkdir(tmp,0700)<0 && errno!=EEXIST) {
+  if(mkdir((d_mailroot+tmp).c_str(),0700)<0 && errno!=EEXIST) {
     *response="Unable to make mail root level 2 hash directory "+string(d_mailroot)+"/"+string(tmp)+": "+string(strerror(errno));
     return -1;
   }
@@ -176,6 +142,26 @@ int Delivery::addFile(const string &address, const string &index, string *respon
   *response="+OK";
   return 0;
 }
+
+int Delivery::setupMaildir(const char *dir, string *response)
+{
+  string basepath=dir;
+  int res;
+  res=mkdir(basepath.c_str(),0700);
+  if(res==0 || (res==-1 && errno==EEXIST)) {
+    res=mkdir((basepath+"/tmp").c_str(),0700);
+    if(res==0 || (res==-1 && errno==EEXIST)) {
+      res=mkdir((basepath+"/cur").c_str(),0700);
+      if(res==0 || (res==-1 && errno==EEXIST)) {
+	return 0;
+      }
+    }
+  }
+  *response="-ERR Error creating Maildir: "+string(strerror(errno));
+
+  return -1;
+}
+
 
 int Delivery::makeMessageLoc(const string &address, const string &index, string *filename, string *response)
 {
@@ -311,6 +297,9 @@ void Delivery::listMbox(const string &mbox, string &response)
 
 int Delivery::giveLine(const string &line)
 {
+  if(d_fd<0)
+    throw DeliveryException("Attempt to add line after fd was closed already");
+
   return write(d_fd,line.c_str(),line.size());
 }
 
@@ -356,11 +345,12 @@ void Delivery::unlinkAll()
 void Delivery::commit()
 {
   if(::close(d_fd)<0) { // NFS dorks
+    d_fd=-1;
     int tmp=errno;
     unlinkAll();
     throw DeliveryException(string("Close error: ")+strerror(tmp));
   }
-  
+  d_fd=-1;
   if(moveAll()) {
     int tmp=errno;
     unlinkAll();

@@ -133,7 +133,7 @@ int PPTalker::nukeMbox(const string &mbox)
     d_session->putLine("nuke "+mbox+"\n");
     d_session->getLine(line);
     if(line.find("+OK"))
-      throw PPTalkerException("Unable to nuke mailbox '"+mbox+"'");
+      throw PPTalkerException("Unable to purge mailbox '"+mbox+"': "+line);
   }
   catch(AhuException &e) {
     throw PPTalkerException("Session Error nuking mailbox: "+e.d_reason);

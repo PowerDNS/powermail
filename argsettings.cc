@@ -391,7 +391,7 @@ string ArgSettings::makeHelp()
 
     const Argument &arg=i->second;
     if(arg.getType()!=Ignore) {
-      help<<ios::left<<setw(leftWidth+2)<<"--"+makeLeft(i->first, i->second);
+      help<<" "<<setw(leftWidth+2)<<"--"+makeLeft(i->first, i->second);
       help<<" "<<wordWrap(arg.getHelp(),leftWidth+3)<<"\n";
     }
   }
