@@ -1,4 +1,5 @@
 #include "powerldap.hh"
+#include <errno.h>
 #include <iostream>
 
 #include <map>
@@ -8,6 +9,8 @@
 #include <stdexcept>
 #include <string>
 
+// test
+ 
 PowerLDAP::PowerLDAP(const string &host, u_int16_t port) : d_host(host), d_port(port), d_timeout(1)
 {
   d_bound=false;
@@ -47,7 +50,7 @@ int PowerLDAP::waitResult(int msgid,LDAPMessage **retresult)
   if(retresult)
     *retresult=result;
   
-  if(rc==LDAP_RES_SEARCH_ENTRY) // no error in that case
+  if(rc==LDAP_RES_SEARCH_ENTRY || LDAP_RES_SEARCH_RESULT) // no error in that case
     return rc;
   
   int err;
