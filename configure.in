@@ -48,13 +48,20 @@ fi
 AC_MSG_RESULT($enable_static_binaries)
 
 
-#
-# MySQL Support
-#
+userbases="mysqlpdns mysqlplain mysqlsimplepdns text"
+AC_ARG_WITH(userbases, [  --with-userbases Which userbases to compile with ], 
+[
+	userbases="$withval"  
+])
+
+
 
 #
 # Location of MySQL installation
 #
+
+if echo $userbases | grep mysql > /dev/null
+then 
 AC_ARG_WITH(mysql,
     [  --with-mysql=<path>     root directory path of MySQL installation],
     [MYSQL_lib_check="$withval/lib/mysql $with_mysql/lib"
@@ -120,18 +127,13 @@ esac
 AC_MSG_RESULT([$MYSQL_incdir])
 
 CPPFLAGS="$CPPFLAGS -I${MYSQL_incdir}"
+fi
 
 # Userbases
 
 AC_SUBST(userbasesdirs)
 AC_SUBST(userbasesfiles)
 AC_SUBST(userbaseslibs)
-
-userbases="mysqlpdns mysqlplain mysqlsimplepdns text"
-AC_ARG_WITH(userbases, [  --with-userbases Which userbases to compile with ], 
-[
-	userbases="$withval"  
-])
 
 tmp=""
 for a in $userbases

@@ -118,7 +118,7 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
 	md.canonicalMbox=res[0][d_attribute][0];
 	if(!d_alternate_domain.empty())
 	  md.canonicalMbox+="@"+d_alternate_domain;
-	
+	L<<Logger::Notice<<"Alternate search indirected to "<<md.canonicalMbox<<endl;
 	md.isForward=false;
 	md.mbQuota=0;
 	return 0;
