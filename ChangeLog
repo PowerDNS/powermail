@@ -2,6 +2,12 @@ Changes since 1.4:
         - added LDAP support
 	- pplistener ignored config-dir (stef)
 	- all threads share one cwd (oops)
+	  (could lead to crashes or theoretically to mail being delivered to the wrong users!)
+	- add way to override hostname (Marcello Scacchetti)
+	- support HELO without host (Marcello Scacchetti)
+	- give proper error code on non-existent email address (Marcello Scacchetti)
+	- add greetings-banner configuration (Marcello Scacchetti/bert hubert)
+	
 	
 Changes since 1.2:
 	- improved some logging

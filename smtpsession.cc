@@ -274,6 +274,15 @@ bool SmtpSession::topCommands(const string &line, string &response, quit_t &quit
     quit=pleaseQuit;
     return true;
   }
+  if(line=="HELO") {
+    L<<Logger::Warning<<"HELO from "<<d_remote<<endl;
+    if(args().paramString("hostname").empty()) {
+        response="250 "+getHostname();
+    } else {
+        response="250 "+args().paramString("hostname");
+    }
+    return true;
+  }
 
   vector<string>words;
   stringtok(words,line);
@@ -429,7 +438,7 @@ bool SmtpSession::eatTo(const string &line, string &response)
 	L<<Logger::Warning<<"Fallback match of '"<<d_to<<"' as '"<<*dest<<"'"<<endl;
 
       if(!exists) {
-	response="553 "+response;
+	response="550 "+response;
 	L<<Logger::Warning<<"No such account in message <"<<d_index<<"> to <"<<d_to<<">"<<endl;
 	return true;
       }
@@ -548,5 +557,16 @@ bool SmtpSession::giveLine(string &line, string &response, quit_t &quit)
 
 string SmtpSession::getBanner()
 {
-  return "220 "+getHostname()+" PowerSMTP "VERSION" ESMTP\r\n";
+  string banner="220 ";
+  if(args().paramString("hostname").empty())
+    banner+=getHostname();
+  else
+    banner+=args().paramString("hostname");
+  
+  if(args().paramString("greetings-banner").empty())
+    banner+=" PowerSMTP "VERSION" ESMTP\r\n";
+  else
+    banner+=args().paramString("greetings-banner");
+  return banner;
+  
 }
