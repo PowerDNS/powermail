@@ -210,7 +210,7 @@ void MegaTalker::openStorage()
 
   // select s_redundancy targets
 
-  ServerSelect ss(s_targets);
+  ServerSelect ss(s_targets); // danger?
   for(unsigned int n=0;n<s_redundancy;n++) {
     const TargetData *tdp=ss.getServer();
     if(!tdp)

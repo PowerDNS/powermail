@@ -189,6 +189,8 @@ int PowerSmtpMain(int argc, char **argv)
   args().addParameter("listen-address","Address on which to listen for new connections","0.0.0.0");
   args().addParameter("run-as-uid","User-id to run as, after acquiring socket","0");
   args().addParameter("run-as-gid","Group-id to run as, after acquiring socket","0");
+  args().addParameter("hostname","Forced FQDN for HELO reply and BANNER","");
+  args().addParameter("greetings-banner","Set the string to be displayed as greetigs banner","");
 
   UserBaseArguments();
 
@@ -245,7 +247,7 @@ int PowerSmtpMain(int argc, char **argv)
     }
 
     if(args().commandGiven("version")) {
-      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.3 2002-12-24 20:05:55 ahu Exp $"<<endl;
+      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.4 2002-12-24 23:32:12 ahu Exp $"<<endl;
       exit(0);
     }
 
