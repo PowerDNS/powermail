@@ -12,7 +12,7 @@
       </affiliation>
     </author>
     
-    <PubDate>v1.0 $Date: 2002-12-29 16:38:22 $</PubDate>
+    <PubDate>v1.0 $Date: 2002-12-29 17:05:49 $</PubDate>
     
     <Abstract>
       <para>	
@@ -281,6 +281,16 @@
 	  <listitem>
 	    <para>
 	      Potential crashes due to use of gethostbyname instead of gethostbyname_r (spotted by Stef van Dessel)
+	    </para>
+	  </listitem>	  
+	  <listitem>
+	    <para>
+	      pptool would crash unless configured to use the 'mysqlpdns' backend (spotted by Stef van Dessel)
+	    </para>
+	  </listitem>	  
+	  <listitem>
+	    <para>
+	      Build process had trouble finding the libpq++ includes on Red Hat (spotted by Stef van Dessel)
 	    </para>
 	  </listitem>	  
 	</itemizedlist>

@@ -22,7 +22,7 @@ powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
 	smtptalker.hh  userbase.cc  powersmtp.cc smtpsession.cc smtpsession.hh \
 	pptool.cc delivery.cc delivery.hh pplistener.cc ppsession.cc ppsession.hh \
 	powerimap.cc imapsession.cc imapsession.hh ahuexception.hh common.hh \
-	pool.hh smysql.cc
+	pool.hh smysql.cc smysql.hh
 endif 
 
 powermail_LDADD= @userbasesfiles@ @userbaseslibs@ 
