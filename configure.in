@@ -125,6 +125,7 @@ CPPFLAGS="$CPPFLAGS -I${MYSQL_incdir}"
 
 AC_SUBST(userbasesdirs)
 AC_SUBST(userbasesfiles)
+AC_SUBST(userbaseslibs)
 
 userbases="mysqlpdns mysqlplain mysqlsimplepdns text"
 AC_ARG_WITH(userbases, [  --with-userbases Which userbases to compile with ], 
@@ -138,9 +139,9 @@ do
 	tmp="$tmp ./$a/Makefile"
 	userbasesdirs="$userbasesdirs $a"
 	userbasesfiles="$userbasesfiles $(cat userbases/$a/OBJECTFILES)"
+	userbaseslibs="$userbaseslibs $(cat userbases/$a/OBJECTLIBS)"
 done
-echo "tmp=$tmp"
-export userbasesdirs userbasesfiles
+export userbasesdirs userbasesfiles userbaseslibs
 
 AC_OUTPUT(userbases/text/Makefile \
 userbases/Makefile 
@@ -149,4 +150,5 @@ userbases/mysqlpdns/Makefile \
 userbases/postgresql/Makefile \
 userbases/mysqlsimplepdns/Makefile \
 userbases/oracle/Makefile \
+userbases/ldap/Makefile \
 Makefile codedocs/Makefile make.init.d)

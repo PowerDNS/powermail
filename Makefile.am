@@ -5,7 +5,7 @@ EXTRA_DIST=make.init.d.in docs powersmtp.init.d powerpop.init.d pplistener.init.
 mailboxes.dist README COPYING
 
 powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
-	session.cc session.hh lock.hh ssql.hh smysql.cc smysql.hh \
+	session.cc session.hh lock.hh ssql.hh  \
 	userbase.hh logger.cc logger.hh common.cc mboxdir.cc\
 	pptalker.cc talker.hh pptalker.hh misc.cc misc.hh argsettings.cc argsettings.hh \
 	megatalker.cc megatalker.hh serversel.cc serversel.hh smtptalker.cc \
@@ -15,7 +15,7 @@ powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
 	pool.hh
 
 
-powermail_LDADD= -lmysqlclient_r -lz  -ldl -lcrypt 
+powermail_LDADD= @userbaseslibs@
 # -L/opt/oracle/lib -ldl -lclient8  -lclntst8 -ldl
 powermail_LDFLAGS=-pthread @userbasesfiles@
 
@@ -44,6 +44,6 @@ install-data-local:
 	@(if [ -e $(DESTDIR)$(sysconfdir)/power.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/power.conf file;else echo > $(DESTDIR)$(sysconfdir)/power.conf;fi )
 	@(if [ -e $(DESTDIR)$(sysconfdir)/mailboxes ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/mailboxes file;else cat mailboxes.dist > $(DESTDIR)$(sysconfdir)/mailboxes;fi )
 	-mkdir -p $(DESTDIR)$(localstatedir)
-	@(if [ -e $(DESTDIR)$(localstatedir)/messages ] ; then echo "Not changing existing $(DESTDIR)$(localstatedir)/messages directory" ; else mkdir $(DESTDIR)$(localstatedir)/messages ; fi)
-	@(if [ -e $(DESTDIR)$(localstatedir)/state ] ; then echo "Not changing existing $(DESTDIR)$(localstatedir)/state directory" ; else mkdir $(DESTDIR)$(localstatedir)/state ; fi)
+	@(if [ -e $(DESTDIR)$(localstatedir)/messages ] ; then echo "Not changing existing $(DESTDIR)$(localstatedir)/messages directory" ; else mkdir -p $(DESTDIR)$(localstatedir)/messages ; fi)
+	@(if [ -e $(DESTDIR)$(localstatedir)/state ] ; then echo "Not changing existing $(DESTDIR)$(localstatedir)/state directory" ; else mkdir -p $(DESTDIR)$(localstatedir)/state ; fi)
 
