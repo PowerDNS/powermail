@@ -21,7 +21,6 @@
 #include <time.h>
 #include "lock.hh"
 #include "userbase.hh"
-#include "smysql.hh"
 #include "textparser.hh"
 
 using namespace std;
