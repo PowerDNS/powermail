@@ -66,6 +66,9 @@ public:
   Logger& operator<<(Urgency);    //!< set the urgency, << style
   Logger& operator<<(ostream & (&)(ostream &)); //!< this is to recognise the endl, and to commit the log
 private:
+  Logger& operator=(const Logger &);
+  Logger(const Logger &);
+
   map<pthread_t,string>d_strings;
   map<pthread_t,Urgency> d_outputurgencies;
   void open();

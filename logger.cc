@@ -16,7 +16,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "logger.hh"
-
+#include "lock.hh"
 using namespace std;
 
 void Logger::log(const string &msg, Urgency u)
@@ -57,6 +57,7 @@ void Logger::open()
 
 Logger::Logger(const string &n, int facility)
 {
+  cout<<"logger launched "<<(void *)&lock<<endl;
   opened=false;
   flags=LOG_PID|LOG_NDELAY;
   d_facility=facility;
@@ -75,17 +76,16 @@ void Logger::setName(const string &n)
 
 Logger& Logger::operator<<(Urgency u)
 {
-  pthread_mutex_lock(&lock);
+  Lock l(&lock);
 
   d_outputurgencies[pthread_self()]=u;
 
-  pthread_mutex_unlock(&lock);
   return *this;
 }
 
 Logger& Logger::operator<<(const string &s)
 {
-  pthread_mutex_lock(&lock);
+  Lock l(&lock);
 
   if(!d_outputurgencies.count(pthread_self())) // default urgency
     d_outputurgencies[pthread_self()]=Info;
@@ -93,7 +93,7 @@ Logger& Logger::operator<<(const string &s)
   if(d_outputurgencies.count(pthread_self())<=(unsigned int)consoleUrgency) // prevent building strings we won't ever print
       d_strings[pthread_self()].append(s);
 
-  pthread_mutex_unlock(&lock);
+
   return *this;
 }
 
@@ -110,12 +110,14 @@ Logger& Logger::operator<<(int i)
 Logger& Logger::operator<<(ostream & (&)(ostream &))
 {
   // *this<<" ("<<(int)d_outputurgencies[pthread_self()]<<", "<<(int)consoleUrgency<<")";
-  pthread_mutex_lock(&lock);
+  cout<<"lock: "<<(void *)&lock<<endl;
+
+  Lock l(&lock);
 
   log(d_strings[pthread_self()], d_outputurgencies[pthread_self()]);
   d_strings.erase(pthread_self());  // ??
   d_outputurgencies.erase(pthread_self());
 
-  pthread_mutex_unlock(&lock);
+
   return *this;
 }
