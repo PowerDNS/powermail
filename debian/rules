@@ -93,6 +93,7 @@ binary-arch: stamp-build
 clean:
 	rm -f debian/files debian/substvars
 	rm -rf "$(tmpdir)" 
+	-make -C docs distclean
 	-make distclean
 
 .PHONY: clean build binary binary-arch binary-indep
