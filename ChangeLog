@@ -1,3 +1,7 @@
+changes since 1.6:
+	- fixes for older gcc compilers (Rueben d'Arco)
+	- pptool ignored SYSCONFDIR and only did /etc/powermail (Rueben d'Arco)
+
 Changes since 1.5:
 feat    - added LDAP support
 bug	- pplistener ignored config-dir (stef)

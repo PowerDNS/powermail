@@ -494,7 +494,7 @@ void doMD5(const vector<string>&words)
 int PPToolMain(int argc, char **argv)
 {
   L.setName("pptool");
-  args().addParameter("config-dir","Location to read configuration files from","/etc/powermail");
+  args().addParameter("config-dir","Location to read configuration files from",SYSCONFDIR);
   args().ignore("config-name");
   args().addParameter("listen-port","Port on which to listen for new connections","110");
   args().addParameter("listen-address","Address on which to listen for new connections","0.0.0.0");

@@ -1,6 +1,6 @@
 Buildroot: /tmp/powermail
 Name: powermail
-Version: 1.4
+Version: 1.6
 Release: 1
 Summary: extremely powerful and versatile mail receiver
 Copyright: see /usr/doc/pdns/copyright
