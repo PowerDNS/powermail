@@ -40,6 +40,9 @@ private:
   string d_host;
   map<string,string> d_map;
   string d_attribute;
+  string d_alternate_attribute;
+  string d_alternate_domain;
+  string d_alternate_base;
 };
 
 #endif /* LDAPUSERBASE_HH */

@@ -33,6 +33,9 @@ LDAPUserBase::LDAPUserBase(const string &host)
 {
   d_host=host;
   d_attribute=args().paramString("ldap-search-attribute");
+  d_alternate_attribute=args().paramString("ldap-alternate-attribute");
+  d_alternate_domain=args().paramString("ldap-alternate-mbox-domain");
+  d_alternate_base=args().paramString("ldap-alternate-base");
 
   vector<string> parts;
   stringtok(parts,args().paramString("ldap-domain-map")," \t\n");
@@ -86,7 +89,7 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
 
   L<<Logger::Notice<<"Base for mailbox '"<<mbox<<"' is '"<<base<<"'"<<endl;
 
-  if(!pass.empty()) { // if a bind succeeds, we are happy
+  if(!pass.empty()) { // login attempt, which we try to meet by binding
     try {
       d_db->bind(d_attribute+"="+PowerLDAP::escape(localpart)+","+base,pass);
       pwcorrect=true;
@@ -104,21 +107,46 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
     md.mbQuota=0;
     return 0;
   }
-  L<<Logger::Notice<<"Search='"<<d_attribute+"="+PowerLDAP::escape(localpart)<<"'"<<endl;
-  d_db->search(base,d_attribute+"="+PowerLDAP::escape(localpart));
-  PowerLDAP::sresult_t res;
-  d_db->getSearchResults(res);
-  if(res.empty()) {
-    error="No such user";
+  else try {
+    PowerLDAP::sresult_t res;
+    if(!d_alternate_attribute.empty()) {   // do alternate check
+      L<<Logger::Notice<<"Alternate search: '"<<d_alternate_attribute+"="+PowerLDAP::escape(mbox)<<"'"<<endl;
+      d_db->search(d_alternate_base,d_alternate_attribute+"="+PowerLDAP::escape(mbox));
+      d_db->getSearchResults(res);
+      if(!res.empty()) {
+	exists=true;
+	md.canonicalMbox=res[0][d_attribute][0];
+	if(!d_alternate_domain.empty())
+	  md.canonicalMbox+="@"+d_alternate_domain;
+	
+	md.isForward=false;
+	md.mbQuota=0;
+	return 0;
+      }
+    }
+    
+    L<<Logger::Notice<<"Search='"<<d_attribute+"="+PowerLDAP::escape(localpart)<<"', base='"<<base<<"'"<<endl;
+    d_db->search(base,d_attribute+"="+PowerLDAP::escape(localpart));
+
+    L<<Logger::Notice<<"In progress"<<endl;
+    
+    d_db->getSearchResults(res);
+    
+    if(!res.empty()) {
+      exists=true;
+      md.canonicalMbox=mbox;
+      md.isForward=false;
+      md.mbQuota=0;
+      return 0;
+    }
+    
+
+    error="No such account";
     return 1;
   }
-  else {
-    exists=true;
-    md.canonicalMbox=mbox;
-    md.isForward=false;
-    md.mbQuota=0;
-    return 0;
-  }
+  catch(LDAPException &le) {
+    L<<Logger::Error<<"LDAP: "<<le.what()<<endl;
+  }  
   
   return -1;
 }
@@ -135,8 +163,11 @@ public:
   {
     UserBaseRepository()["ldap"]=&LDAPUserBase::maker;
     args().addParameter("ldap-host","LDAP server(s) to connect to","127.0.0.1");
-    args().addParameter("ldap-domain-map","How to map a domain to a search-base","");
+    args().addParameter("ldap-domain-map","How to map a domain to a search-base",""); // ds9a.nl:ou=People,dc=snapcount 
     args().addParameter("ldap-search-attribute","Attribute to use for ldap searches and binds","uid");
+    args().addParameter("ldap-alternate-attribute","Attribute to use for alternate address","");
+    args().addParameter("ldap-alternate-mbox-domain","Localpart to assume for mbox in case of alternate","");
+    args().addParameter("ldap-alternate-base","Base to assume for mbox in case of alternate","");
   }
 };
 
