@@ -1,4 +1,4 @@
-EXTRA_DIST=OBJECTFILES
+EXTRA_DIST=OBJECTFILES OBJECTLIBS
 noinst_LIBRARIES=libuserbase.a
 
 libuserbase_a_SOURCES=textparser.yy textlexer.l textbase.cc textbase.hh  \
