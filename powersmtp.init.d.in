@@ -17,6 +17,10 @@ case "$1" in
 	$sbindir/powersmtp stop
 	$sbindir/powersmtp start
 	;;
+
+	monitor)
+		$sbindir/powersmtp --daemon=no --loglevel=9
+	;;
 	
 	*)
 	echo powersmtp [start\|stop\|restart\|force-reload\|status]

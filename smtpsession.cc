@@ -176,7 +176,16 @@ void SmtpSession::sendReceivedLine()
       for <ahu@ds9a.nl>; Wed, 21 Nov 2001 17:32:44 +0100 (CET)
   */
 
-  string line="Received: from "+d_remote+" by "+getHostname()+" (PowerMail) with id <"+d_index+">\r\n";
+  string line="Received: from "+d_remote+" by "+getHostname()+" (PowerMail) with id <"+d_index+">; ";
+  time_t now=time(0);
+
+  struct tm tmb;
+  time(&now);
+  tmb=*localtime(&now); // racey!
+
+  char buffer[151];
+  strftime(buffer,sizeof(buffer)-1,"%a, %d %b %Y %H:%M:%S %z (%Z)\r\n", &tmb);
+  line+=buffer;
   d_megatalker->msgAddLine(line);
 }
 
@@ -501,10 +510,26 @@ bool SmtpSession::controlCommands(const string &line, string &response, quit_t &
   if(words[0]!="CONTROL")
     return false;
 
-  if(d_remote.find("127.0.0.1:") && d_remote.find(args().paramString("listen-address")+":")) {
-    L<<Logger::Error<<"Remote "<<d_remote<<" tried a control command: "<<line<<endl;
-    return false;
+  {
+    vector<string> parts;
+    stringtok(parts,d_remote,":");
+    string address=parts[0];
+
+
+    if(address!="127.0.0.1" &&address!=args().paramString("listen-address")) {
+      L<<Logger::Error<<"Remote "<<d_remote<<" tried a control command: "<<line<<endl;
+      return false;
+    }
+#if 0
+    u_int16_t port= (parts.size()==2) ? atoi(parts[1].c_str()) : -1;
+    if(port>=1024) {
+      L<<Logger::Error<<"Unprivileged port "<<port<<" tried a control command: "<<line<<endl;
+      response="500 Only root can send control commands!";
+      return true;
+    }
+#endif
   }
+
     
   if(words.size()<2) {
     response="500 Missing control command";
@@ -562,11 +587,12 @@ string SmtpSession::getBanner()
     banner+=getHostname();
   else
     banner+=args().paramString("hostname");
-  
+  banner+=" ESMTP";
+
   if(args().paramString("greetings-banner").empty())
-    banner+=" PowerSMTP "VERSION" ESMTP\r\n";
+    banner+=" PowerSMTP "VERSION;
   else
     banner+=args().paramString("greetings-banner");
-  return banner;
-  
+
+  return banner+"\r\n";
 }

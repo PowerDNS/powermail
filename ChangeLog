@@ -7,9 +7,12 @@ Changes since 1.4:
 	- support HELO without host (Marcello Scacchetti)
 	- give proper error code on non-existent email address (Marcello Scacchetti)
 	- add greetings-banner configuration (Marcello Scacchetti/bert hubert)
+	- banner now has 'ESMTP' in the right place
+	- improved startup feedback ('a mailer is already running..')
 	- textbase accidentally had a mysql dependency	
 	- moved one gethostbyname to gethostbyname_r
 	- improved Makefile to honor directory preferences (spotted by Florus Both)
+	- PowerSMTP 'received' lines now have a timestamp
 	
 Changes since 1.2:
 	- improved some logging

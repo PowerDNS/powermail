@@ -126,7 +126,10 @@ static void doCommands(const vector<string>&commands)
       exit(1);
     }
     if(command=="start") {
-      cerr<<"already running"<<endl;
+      if(line.find("PowerSMTP")==string::npos)
+	cerr<<"a mailer is already running on our port"<<endl;
+      else
+	cerr<<"already running"<<endl;
       exit(1);
     }
     else
@@ -139,7 +142,7 @@ static void doCommands(const vector<string>&commands)
       }
       else {
 	stripLine(line);
-	cerr<<"powersmtp did not stop: "<<line<<endl;
+	cerr<<"powersmtp did not stop: '"<<line<<"' (perhaps another mailer is active?)"<<endl;
       }
       s->close();
       delete s;
@@ -183,7 +186,6 @@ int PowerSmtpMain(int argc, char **argv)
   args().addParameter("config-dir","Location to read configuration files from",SYSCONFDIR);
   args().addParameter("config-name","Name of this virtual configuration","");
 
-
   args().addParameter("advertisement","Advertisement to insert on received messages","");
   args().addParameter("listen-port","Port on which to listen for new connections","25");
   args().addParameter("listen-address","Address on which to listen for new connections","0.0.0.0");
@@ -202,6 +204,7 @@ int PowerSmtpMain(int argc, char **argv)
   args().addParameter("smtp-sender-port","Address of our SMTP email sender","2500");
 
   args().addParameter("redundancy-target","Number of backends required per message for succesful delivery","1");
+  args().addParameter("loglevel","Amount of logging to do - 9 is highest","3");
 
   args().addCommand("help","Display this helpful message");
   args().addCommand("version","Display version information");
@@ -212,12 +215,14 @@ int PowerSmtpMain(int argc, char **argv)
 
   signal(SIGPIPE,SIG_IGN);
 
-  L.toConsole(Logger::Warning);
+
   vector<string>commands; // will be found on the commandline
   try {
     string response;
 
     args().preparseArgs(argc, argv,"help");
+    args().preparseArgs(argc, argv,"loglevel");
+    L.toConsole((Logger::Urgency)(args().paramAsNum("loglevel")));  
     if(args().commandGiven("help")) {
       cerr<<args().makeHelp()<<endl;
       exit(0);
@@ -247,7 +252,7 @@ int PowerSmtpMain(int argc, char **argv)
     }
 
     if(args().commandGiven("version")) {
-      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.4 2002-12-24 23:32:12 ahu Exp $"<<endl;
+      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.5 2002-12-28 14:35:57 ahu Exp $"<<endl;
       exit(0);
     }
 
@@ -287,8 +292,7 @@ int PowerSmtpMain(int argc, char **argv)
       daemonize();
       L.toConsole(false);
     }
-    else
-      L.toConsole(true);
+
 
     MegaTalker::startStateThread();
 

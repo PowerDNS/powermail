@@ -211,6 +211,7 @@ int PowerPopMain(int argc, char **argv)
 
   args().addParameter("backends","Comma or space separated list of PPListener backends","1:1:127.0.0.1");
   args().addParameter("state-dir","Directory to store queued operations",LOCALSTATEDIR"/state");
+  args().addParameter("loglevel","Amount of logging to do - 9 is highest","3");
 
   args().addCommand("help","Display this helpful message");
   args().addCommand("version","Display version information");
@@ -228,6 +229,9 @@ int PowerPopMain(int argc, char **argv)
       cerr<<args().makeHelp()<<endl;
       exit(0);
     }
+    args().preparseArgs(argc, argv,"loglevel");
+    L.toConsole((Logger::Urgency)(args().paramAsNum("loglevel")));  
+
     args().preparseArgs(argc, argv,"make-config");
     if(args().commandGiven("make-config")) {
       cout<<args().makeConfig()<<endl;
@@ -235,7 +239,7 @@ int PowerPopMain(int argc, char **argv)
     }
     args().preparseArgs(argc, argv,"version");
     if(args().commandGiven("version")) {
-      cerr<<"powerpop version "<<VERSION<<". This is $Id: powerpop.cc,v 1.2 2002-12-04 16:32:49 ahu Exp $"<<endl;
+      cerr<<"powerpop version "<<VERSION<<". This is $Id: powerpop.cc,v 1.3 2002-12-28 14:35:57 ahu Exp $"<<endl;
       exit(0);
     }
 

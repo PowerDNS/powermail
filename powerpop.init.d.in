@@ -16,6 +16,11 @@ case "$1" in
 	$sbindir/powerpop stop
 	$sbindir/powerpop start
 	;;
+
+	monitor)
+		$sbindir/powerpop --daemon=no --loglevel=9
+	;;
+
 	
 	*)
 	echo powerpop [start\|stop\|restart\|force-reload\|status]
