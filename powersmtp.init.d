@@ -12,13 +12,13 @@ case "$1" in
 	$bindir/powersmtp $1
 	;;
 
-	restart)
+	force-reload | restart)
 	$bindir/powersmtp stop
 	$bindir/powersmtp start
 	;;
 	
 	*)
-	echo ahudns [start\|stop\|restart\|status]
+	echo powersmtp [start\|stop\|restart\|force-reload\|status]
 	;;
 esac
 

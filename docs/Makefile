@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2002-12-04 13:46:46 ahu Exp $ 
+# $Id: Makefile,v 1.2 2002-12-09 16:59:14 ahu Exp $ 
 
 all: powermail.txt powermail.pdf html/index.html html.tar.gz
 
@@ -6,8 +6,8 @@ all: powermail.txt powermail.pdf html/index.html html.tar.gz
 clean:
 	rm -rf *.dvi *.pdf *.tex *.toc *.aux *.txt *.ps *.bak *.tmp *~ *.log html
 
-html/index.html: powermail.db
-	db2html  -V %use-id-as-filename%  -o html powermail.db
+html/index.html: powermail.sgml
+	db2html -o html $<
 
 html.tar.gz: html/index.html
 	tar czf html.tar.gz html/

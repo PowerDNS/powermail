@@ -11,13 +11,13 @@ case "$1" in
 	$bindir/powerpop $1
 	;;
 
-	restart)
+	force-reload | restart)
 	$bindir/powerpop stop
 	$bindir/powerpop start
 	;;
 	
 	*)
-	echo ahudns [start\|stop\|restart\|status]
+	echo powerpop [start\|stop\|restart\|force-reload\|status]
 	;;
 esac
 

@@ -13,13 +13,13 @@ case "$1" in
 	$bindir/pplistener $1
 	;;
 
-	restart)
+	force-reload | restart)
 	$bindir/pplistener stop
 	$bindir/pplistener start
 	;;
 	
 	*)
-	echo ahudns [start\|stop\|restart\|status]
+	echo pplistener [start\|stop\|restart\|force-reload\|status]
 	;;
 esac
 

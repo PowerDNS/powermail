@@ -1,9 +1,8 @@
-AM_CXXFLAGS=-DSYSCONFDIR=\"@sysconfdir@\" -DBINDIR=\"@bindir@\" -DLOCALSTATEDIR=\"@localstatedir@\"
+AM_CXXFLAGS=-DSYSCONFDIR=\"@sysconfdir@\" -DBINDIR=\"@bindir@\" -DLOCALSTATEDIR=\"@localstatedir@\" -D_GNU_SOURCE
 bin_PROGRAMS=powermail
-bin_SCRIPTS=powersmtp.init.d powerpop.init.d pplistener.init.d
 
 EXTRA_DIST=make.init.d.in docs powersmtp.init.d powerpop.init.d pplistener.init.d \
-mailboxes.dist
+mailboxes.dist README COPYING
 
 powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
 	session.cc session.hh lock.hh ssql.hh smysql.cc smysql.hh \
