@@ -1,0 +1,99 @@
+#!/usr/bin/make -f
+
+tmpdir		:= $(shell pwd)/debian/tmp
+
+configure:
+	./bootstrap
+
+stamp-build build: configure
+	./configure \
+		--prefix=/usr \
+		--libexecdir='$${prefix}/lib' \
+		--sysconfdir=/etc \
+		--infodir='$${datadir}/info' \
+		--mandir='$${datadir}/man' \
+		--localstatedir='/var/lib/powermail'
+	make
+	touch stamp-build
+
+
+binary: binary-indep binary-arch
+
+binary-indep:
+	-make -C docs html/index.html
+
+	rm -rf "$(tmpdir)"
+
+	install -d -m 755 -o root -g root \
+		"$(tmpdir)"/usr/share/doc/powermail/html
+	set -e ; for i in docs/html/[^C]* ; do \
+		install -p -m 644 -o root -g root "$$i" \
+			"$(tmpdir)"/usr/share/doc/powermail/html/ ; \
+		done
+
+	install -d -m 755 -o root -g root \
+		"$(tmpdir)"/usr/share/doc/powermail-doc
+	install -p -m 644 -o root -g root ChangeLog \
+			"$(tmpdir)"/usr/share/doc/powermail-doc/changelog
+	install -p -m 644 -o root -g root debian/changelog \
+			"$(tmpdir)"/usr/share/doc/powermail-doc/changelog.Debian
+	gzip -9 "$(tmpdir)"/usr/share/doc/powermail-doc/*
+	install -p -m 644 -o root -g root debian/copyright \
+			"$(tmpdir)"/usr/share/doc/powermail-doc/
+
+	install -d -m 755 -o root -g root "$(tmpdir)"/usr/share/doc-base
+	install -p -m 644 -o root -g root debian/doc-base \
+			"$(tmpdir)"/usr/share/doc-base/powermail
+
+	install -d -m 755 -o root -g root "$(tmpdir)"/DEBIAN
+	install -p -m 755 -o root -g root debian/powermail-doc.prerm \
+			"$(tmpdir)"/DEBIAN/prerm
+	install -p -m 755 -o root -g root debian/powermail-doc.postinst \
+			"$(tmpdir)"/DEBIAN/postinst
+
+	dpkg-gencontrol -isp -ppowermail-doc -P"$(tmpdir)"
+	dpkg --build "$(tmpdir)" ..
+
+binary-arch: stamp-build
+	rm -f debian/files debian/substvars
+	rm -rf "$(tmpdir)" "$(tmpdir)"-*
+	install -d -m 755 -o root -g root "$(tmpdir)"
+	make DESTDIR="$(tmpdir)" install
+
+	strip --remove-section=.comment --remove-section=.note \
+		--strip-unneeded \
+		"$(tmpdir)"/usr/bin/* "$(tmpdir)"/usr/sbin/*
+
+	install -d -m 755 -o root -g root \
+		"$(tmpdir)"/usr/share/doc/powermail
+	install -p -m 644 -o root -g root ChangeLog \
+			"$(tmpdir)"/usr/share/doc/powermail/changelog
+	install -p -m 644 -o root -g root debian/changelog \
+			"$(tmpdir)"/usr/share/doc/powermail/changelog.Debian
+	gzip -9 "$(tmpdir)"/usr/share/doc/powermail/c*
+	install -p -m 644 -o root -g root debian/copyright \
+			"$(tmpdir)"/usr/share/doc/powermail/
+	
+	install -d -m 755 -o root -g root "$(tmpdir)"/DEBIAN
+	install -p -m 755 -o root -g root debian/powermail.prerm \
+			"$(tmpdir)"/DEBIAN/prerm
+	install -p -m 755 -o root -g root debian/powermail.postrm \
+			"$(tmpdir)"/DEBIAN/postrm
+	install -p -m 755 -o root -g root debian/powermail.postinst \
+			"$(tmpdir)"/DEBIAN/postinst
+	install -p -m 644 -o root -g root debian/powermail.conffiles \
+			"$(tmpdir)"/DEBIAN/conffiles
+
+	dpkg-shlibdeps "$(tmpdir)"/usr/bin/* "$(tmpdir)"/usr/sbin/*
+
+	dpkg-gencontrol -isp -ppowermail -P"$(tmpdir)"
+	dpkg --build "$(tmpdir)" ..
+
+
+clean:
+	rm -f debian/files debian/substvars
+	rm -rf "$(tmpdir)" 
+	-make distclean
+
+.PHONY: clean build binary binary-arch binary-indep
+

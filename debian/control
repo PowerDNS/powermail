@@ -1,0 +1,27 @@
+Source: powermail
+Section: net
+Priority: extra
+Standards-Version: 3.5.8
+Maintainer: Wichert Akkerman <wakkerma@debian.org>
+Build-Depends: automake1.5, autoconf, libtool, flex, bison, docbook-utils, libmysqlclient10-dev, libstdc++-dev
+
+Package: powermail
+Architecture: any
+Depends: ${shlibs:Depends}
+Recommends: powermail-doc
+Description: extremely powerful and versatile nameserver
+ PowerMail is a redundant & distributed system for receiving mail and storing
+ it for users. 
+ .
+ PowerMail only receives email and makes it available over POP. Furthermore,
+ incoming email can be forwarded to other email addresses. Although most
+ PowerMail installations will query a relational database for information about
+ email addresses, messages are stored on disk. 
+
+Package: powermail-doc
+Architecture: all
+Description: PowerMail manual
+ This is the complete manual for PowerMail, documenting both
+ how to install and configure it as well as how to write
+ new backend modules.
+

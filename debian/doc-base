@@ -1,0 +1,12 @@
+Document: powermail
+Title: PowerMail manual
+Author: PowerDNS B.V.
+Section: Apps/System
+Abstract: PowerMail manual
+ This is the complete manual for PowerMail, documenting both
+ how to install and configure it as well as how to write
+ new backend modules.
+
+Format: html
+Index: /usr/share/doc/powermail/html/index.html
+Files: /usr/share/doc/powermail/html/*.html

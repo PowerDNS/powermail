@@ -1,0 +1,15 @@
+#!/bin/sh
+
+set -e
+
+update_init() {
+	update-rc.d powersmtp remove > /dev/null
+	update-rc.d powerpop remove > /dev/null
+	update-rc.d pplistener remove > /dev/null
+}
+
+
+if [ "$1" = "purge" ] ; then
+	update_init
+fi
+

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = "remove" ] ; then
+	/etc/init.d/pplistener stop
+	/etc/init.d/powerpop stop
+	/etc/init.d/powersmtp stop
+fi
+

@@ -1,0 +1,8 @@
+/etc/init.d/powersmtp
+/etc/init.d/powerpop
+/etc/init.d/pplistener
+/etc/powersmtp.conf
+/etc/powerpop.conf
+/etc/pplistener.conf
+/etc/power.conf
+/etc/mailboxes

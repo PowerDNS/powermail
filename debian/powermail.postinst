@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -e
+
+update_init() {
+	if [ -z "$2" ] ; then
+		update-rc.d powersmtp defaults > /dev/null
+		update-rc.d powerpop defaults > /dev/null
+		update-rc.d pplistener defaults > /dev/null
+	fi
+}
+
+
+start_powermail() {
+	if [ -n "$2" ] ; then
+		/etc/init.d/powersmtp start
+		/etc/init.d/powerpop start
+		/etc/init.d/pplistener start
+	fi
+}
+
+if [ "$1" = "configure" -o "$1" = "abort-upgrade" ] ; then
+	update_init "$@"
+	start_powermail "$@"
+fi
