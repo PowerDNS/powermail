@@ -77,14 +77,18 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
   string base;
   if(d_map.count(domain))
     base=d_map[domain];
-  else
+  else if(d_map.count(""))
     base=d_map[""];
+  else {
+    error="No such domain known";
+    return 1;
+  }
 
   L<<Logger::Notice<<"Base for mailbox '"<<mbox<<"' is '"<<base<<"'"<<endl;
 
   if(!pass.empty()) { // if a bind succeeds, we are happy
     try {
-      d_db->bind("uid="+PowerLDAP::escape(mbox)+","+base,pass);
+      d_db->bind(d_attribute+"="+PowerLDAP::escape(localpart)+","+base,pass);
       pwcorrect=true;
     }
     catch(LDAPException &le) {
@@ -100,8 +104,8 @@ int LDAPUserBase::mboxData(const string &mbox, MboxData &md, const string &pass,
     md.mbQuota=0;
     return 0;
   }
-  
-  d_db->search(base,d_attribute+"="+PowerLDAP::escape(mbox));
+  L<<Logger::Notice<<"Search='"<<d_attribute+"="+PowerLDAP::escape(localpart)<<"'"<<endl;
+  d_db->search(base,d_attribute+"="+PowerLDAP::escape(localpart));
   PowerLDAP::sresult_t res;
   d_db->getSearchResults(res);
   if(res.empty()) {
