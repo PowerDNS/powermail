@@ -19,6 +19,7 @@
 #define TEXTUSERBASE_HH
 #include <string>
 #include <time.h>
+#include <vector>
 #include "lock.hh"
 #include "userbase.hh"
 #include "textparser.hh"
