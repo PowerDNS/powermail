@@ -184,7 +184,7 @@ public:
     args().addParameter("ldap-alternate-attribute","Attribute to use for alternate address","");
     args().addParameter("ldap-alternate-mbox-domain","Localpart to assume for mbox in case of alternate","");
     args().addParameter("ldap-alternate-base","Base to assume for mbox in case of alternate","");
-    args().addParameter("ldap-forward-attribute","Attribute which, if present, denotes a forwarding address","");
+    args().addParameter("ldap-forwarding-attribute","Attribute which, if present, denotes a forwarding address","");
   }
 };
 
