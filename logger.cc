@@ -27,12 +27,10 @@ void Logger::log(const string &msg, Urgency u)
   time(&t);
   tmb=*localtime(&t);
 
-
-
   if(u<=consoleUrgency) // Sep 14 06:52:09
     {
-      char buffer[512];
-      strftime(buffer,511,"%b %d %H:%M:%S ", &tmb);
+      char buffer[51];
+      strftime(buffer,sizeof(buffer)-1,"%b %d %H:%M:%S ", &tmb);
       clog<<buffer;
       clog << msg <<endl;
     }
@@ -93,7 +91,7 @@ Logger& Logger::operator<<(const string &s)
     d_outputurgencies[pthread_self()]=Info;
 
   if(d_outputurgencies.count(pthread_self())<=(unsigned int)consoleUrgency) // prevent building strings we won't ever print
-      d_strings[pthread_self()]+=s;
+      d_strings[pthread_self()].append(s);
 
   pthread_mutex_unlock(&lock);
   return *this;
@@ -115,7 +113,7 @@ Logger& Logger::operator<<(ostream & (&)(ostream &))
   pthread_mutex_lock(&lock);
 
   log(d_strings[pthread_self()], d_outputurgencies[pthread_self()]);
-  d_strings.erase(pthread_self());  
+  d_strings.erase(pthread_self());  // ??
   d_outputurgencies.erase(pthread_self());
 
   pthread_mutex_unlock(&lock);
