@@ -93,15 +93,18 @@ Session::Session(const Session &s)
 
 Session::Session(const string &dest, int port, int timeout)
 {
-  struct hostent *h;
-  h=gethostbyname(dest.c_str());
-  if(!h)
+  struct hostent h, *ret;
+  int herrno;
+  char buf[256];
+
+  gethostbyname_r(dest.c_str(), &h, buf, sizeof(buf), &ret, &herrno);
+  if(!ret)
     throw SessionException("Unable to resolve target name");
   
   if(timeout)
     d_timeout=timeout;
 
-  doConnect(*(int*)h->h_addr, port);
+  doConnect(*(int*)h.h_addr, port);
 }
 
 Session::Session(u_int32_t ip, int port, int timeout)

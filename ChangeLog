@@ -7,7 +7,7 @@ Changes since 1.4:
 	- support HELO without host (Marcello Scacchetti)
 	- give proper error code on non-existent email address (Marcello Scacchetti)
 	- add greetings-banner configuration (Marcello Scacchetti/bert hubert)
-	
+	- textbase accidentally had a mysql dependency	
 	
 Changes since 1.2:
 	- improved some logging
