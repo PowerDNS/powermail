@@ -12,7 +12,7 @@
       </affiliation>
     </author>
     
-    <PubDate>v1.0 $Date: 2003-02-04 12:35:26 $</PubDate>
+    <PubDate>v1.0 $Date: 2003-02-11 21:48:18 $</PubDate>
     
     <Abstract>
       <para>	
@@ -1367,8 +1367,10 @@ Connection closed by foreign host.
 		  <entry>MySQL plain</entry><entry>Yes</entry><entry>Yes</entry>
 		</row>
 	        <row>
-		  <entry>MySQL PowerDNS</entry><entry>No</entry><entry>Yes</entry>
+		  <entry>MySQL PowerDNS</entry><entry>Yes</entry><entry>Yes</entry>
 		</row>
+		<row>
+		  <entry>MySQL simple PowerDNS</entry><entry>No</entry><entry>No</entry>
 	        <row>
 		  <entry>Generic PostgreSQL</entry><entry>No</entry><entry>Yes</entry>
 		</row>

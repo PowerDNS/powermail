@@ -1,3 +1,6 @@
+changes since 1.7:
+	- fixed postgresql compilation
+	
 changes since 1.6:
 	- fixes for older gcc compilers (Ruben d'Arco)
 	- pptool ignored SYSCONFDIR and only did /etc/powermail (Ruben d'Arco)

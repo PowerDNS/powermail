@@ -20,6 +20,7 @@
 #include <string>
 #include "lock.hh"
 #include "userbase.hh"
+#include <pg_config.h>
 #include <libpq++.h>
 
 using namespace std;
@@ -33,7 +34,7 @@ public:
   ~PostgreSQLUserBase();
   static UserBase *maker();
 
-  int mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect);  
+  int mboxData(const string &mbox, MboxData &md, const string &pass, string &error, bool &exists, bool &pwcorrect, const string &challenge);  
  
   bool connected(); 
 
