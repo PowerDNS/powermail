@@ -1,0 +1,2 @@
+#!/bin/sh
+./configure --with-userbases="mysqlplain mysqlpdns mysqlsimplepdns oracle postgresql text ldap"

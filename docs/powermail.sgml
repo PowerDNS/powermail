@@ -12,7 +12,7 @@
       </affiliation>
     </author>
     
-    <PubDate>v1.0 $Date: 2002-12-29 16:10:58 $</PubDate>
+    <PubDate>v1.0 $Date: 2002-12-29 16:38:22 $</PubDate>
     
     <Abstract>
       <para>	
@@ -291,7 +291,8 @@
 	    <para>
 	      Generic LDAP support. The aim is to get PowerMail to understand the vast majority of LDAP layouts people use. This
 	      version can probably connect to 'most', please let us know if you can't fit PowerMail to your schema, and we'll add 
-	      features to cover your needs as well (with suggestions by: Stef van Dessel, Bart Smit, Oscar Steenmann)
+	      features to cover your needs as well (with suggestions by: Stef van Dessel, Bart Smit, Oscar Steenmann). See
+	      <xref linkend="ldap">.
 	    </para>
 	  </listitem>
 	  <listitem>
@@ -1678,7 +1679,7 @@ address "sales@example.com" {
       </para>
     </sect1>
 
-    <sect1><title>LDAP</title>
+    <sect1 id="ldap"><title>LDAP</title>
       <para>
 	Available as of 1.5.1 and expected to evolve somewhat in following releases. There is a vast range of LDAP schemas in use, PowerMail
 	strives to be able to talk to most of those with only configuration file tuning.
@@ -1686,6 +1687,13 @@ address "sales@example.com" {
       <para>
 	To verify passwords, PowerPOP tries to bind to a record, leaving the actual password check to the LDAP server. Based on the domain 
 	specified by the user, a base is chosen to bind with.
+      </para>
+      <para>
+	<warning>
+	  <para>
+	    TODO: get quotas hooked up
+	  </para>
+	</warning>
       </para>
       <para>
 	Settings:
@@ -1705,8 +1713,57 @@ address "sales@example.com" {
 		A space separated list of domain:base pairs. For example, "ds9a.nl:ou=People,dc=ds9a,dc=nl" would 
 		indicate that the mailboxes in the 'ds9a.nl' domain are to be searched for in ou=People,dc=ds9a,dc=nl.
 	      </para>
+	      <para>
+		Multiple domains can be specified, as well as a default map: 
+		"ds9a.nl:ou=People,dc=ds9a,dc=nl ou=People,dc=bigisp". This will cause all other domains
+		to be looked up with ou=People,dc=bigisp as search base.
+	      </para>
 	    </listitem>
 	  </varlistentry>
+	  <varlistentry>
+	    <term>ldap-search-attribute</term>
+	    <listitem>
+	      <para>
+		Attribute to search on. With the map above, a message for "ahu@ds9a.nl" with ldap-search-attribute=uid
+		leads to a search on (uid=ahu) within "ou=People,dc=ds9a,dc=nl". PowerDNS does 'scope=subtree' searches.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
+      <para>
+	In addition, PowerMail has support for alternate addresses, as used with qmailldap. For this to work, three
+	additional parameters are provided:
+      </para>
+      <para>
+	<variablelist>
+	  <varlistentry>
+	    <term>ldap-alternate-attribute</term>
+	    <listitem>
+	      <para>
+		Attribute containing the full alternate addresses.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>ldap-alternate-mbox-domain</term>
+	    <listitem>
+	      <para>
+		How to derive the mailbox name from the record. This takes the value in the ldap-search-attribute content as
+		local-part and adds this domain to it. 
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>ldap-alternate-base</term>
+	    <listitem>
+	      <para>
+		Base to use when searching for the alternate attribute.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	</variablelist>
+      </para>
 
     </sect1>
   </chapter>
