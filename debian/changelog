@@ -1,3 +1,9 @@
+powermail (1.7-1) unstable; urgency=low
+
+  * Initial packaging
+
+ -- Wichert Akkerman <wakkerma@debian.org>  Sun,  8 Dec 2002 13:48:41 +0100
+
 powermail (1.5-1) unstable; urgency=low
 
   * Initial packaging

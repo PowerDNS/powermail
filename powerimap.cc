@@ -222,7 +222,7 @@ int PowerImapMain(int argc, char **argv)
     }
     args().preparseArgs(argc, argv,"version");
     if(args().commandGiven("version")) {
-      cerr<<"powerimap version "<<VERSION<<". This is $Id: powerimap.cc,v 1.2 2002-12-04 16:32:49 ahu Exp $"<<endl;
+      cerr<<"powerimap version "<<VERSION<<". This is $Id: powerimap.cc,v 1.3 2003-01-03 18:22:08 ahu Exp $"<<endl;
       exit(0);
     }
 
@@ -272,7 +272,7 @@ int PowerImapMain(int argc, char **argv)
     startUserBase();
     Server *s=new Server(args().paramAsNum("listen-port"));
 
-    dropPrivs(args().paramAsNum("uid"), args().paramAsNum("gid"));
+    dropPrivs(args().paramAsNum("run-as-uid"), args().paramAsNum("run-as-gid"));
     
     if(args().switchSet("daemon")) {
       L<<Logger::Info<<"Going to background"<<endl;

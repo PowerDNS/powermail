@@ -79,19 +79,17 @@ void stripLine(string &line)
 void dropPrivs(int uid, int gid)
 {
   extern Logger L;
-  if(uid) {
-    if(setuid(uid)<0) {
-      L<<Logger::Error<<"Unable to set effective user id to "<<uid<<":  "<<stringerror()<<endl;
+  if(gid) {
+    if(setgid(gid)<0) {
+      L<<Logger::Error<<"Unable to set effective group id to "<<gid<<": "<<stringerror()<<endl;
       exit(1);
     }
   }
-
-  if(gid) {
-    if(setgid(gid)<0) {
-      L<<Logger::Error<<"Unable to set effective user id to "<<gid<<": "<<stringerror()<<endl;
+  if(uid) {
+    if(setuid(uid)<0) {
+      L<<Logger::Error<<"Unable to set effective user id to "<<uid<<": "<<stringerror()<<endl;
       exit(1);
     }
-
   }
 }
 

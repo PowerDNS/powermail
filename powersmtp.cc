@@ -252,7 +252,7 @@ int PowerSmtpMain(int argc, char **argv)
     }
 
     if(args().commandGiven("version")) {
-      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.5 2002-12-28 14:35:57 ahu Exp $"<<endl;
+      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.6 2003-01-03 18:22:08 ahu Exp $"<<endl;
       exit(0);
     }
 
@@ -285,7 +285,7 @@ int PowerSmtpMain(int argc, char **argv)
 
     Server *s=new Server(args().paramAsNum("listen-port"),args().paramString("listen-address"));
 
-    dropPrivs(args().paramAsNum("uid"), args().paramAsNum("gid"));
+    dropPrivs(args().paramAsNum("run-as-uid"), args().paramAsNum("run-as-gid"));
     
     if(args().switchSet("daemon")) {
       L<<Logger::Info<<"Going to background"<<endl;

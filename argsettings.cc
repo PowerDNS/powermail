@@ -384,15 +384,16 @@ string ArgSettings::makeHelp()
       maxLen=max(maxLen,makeLeft(i->first,i->second).length());
   }
 
-  int leftWidth=maxLen+1;
+  int leftWidth=maxLen+2;
 
   for(map<string,Argument>::const_iterator i=d_arguments.begin();
       i!=d_arguments.end();++i) {
 
     const Argument &arg=i->second;
     if(arg.getType()!=Ignore) {
-      help<<" "<<setw(leftWidth+2)<<"--"+makeLeft(i->first, i->second);
-      help<<" "<<wordWrap(arg.getHelp(),leftWidth+3)<<"\n";
+      help<<" --"<<makeLeft(i->first,i->second);
+      for (int len = leftWidth-makeLeft(i->first,i->second).length();len>0;len--) { help << " ";}
+      help << wordWrap(arg.getHelp(),leftWidth+3) << "\n";
     }
   }
   return help.str();
