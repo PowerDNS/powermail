@@ -76,7 +76,7 @@ Session::~Session()
     ::close(clisock);
   */  
 }
-
+#if 0
 //! This function makes a deep copy of Session
 Session::Session(const Session &s)
 {
@@ -89,6 +89,7 @@ Session::Session(const Session &s)
   clisock=s.clisock;
   remote=s.remote;
 }  
+#endif 
 
 Session::Session(const string &dest, int port, int timeout)
 {

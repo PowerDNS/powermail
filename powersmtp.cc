@@ -33,7 +33,6 @@
 #include "common.hh"
 
 extern Logger L;
-extern UserBase *UB;
 
 static void *serveConnection(void *p)
 {
@@ -246,7 +245,7 @@ int PowerSmtpMain(int argc, char **argv)
     }
 
     if(args().commandGiven("version")) {
-      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.2 2002-12-04 16:32:49 ahu Exp $"<<endl;
+      cerr<<"powersmtp version "<<VERSION<<". This is $Id: powersmtp.cc,v 1.3 2002-12-24 20:05:55 ahu Exp $"<<endl;
       exit(0);
     }
 

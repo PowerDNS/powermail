@@ -1,9 +1,10 @@
 AM_CXXFLAGS=-DSYSCONFDIR=\"@sysconfdir@\" -DBINDIR=\"@bindir@\" -DLOCALSTATEDIR=\"@localstatedir@\" -D_GNU_SOURCE
-bin_PROGRAMS=powermail
+bin_PROGRAMS=powermail 
 
 EXTRA_DIST=make.init.d.in docs powersmtp.init.d powerpop.init.d pplistener.init.d \
 mailboxes.dist README COPYING
 
+if !MYSQL
 powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
 	session.cc session.hh lock.hh ssql.hh  \
 	userbase.hh logger.cc logger.hh common.cc mboxdir.cc\
@@ -12,12 +13,21 @@ powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
 	smtptalker.hh  userbase.cc  powersmtp.cc smtpsession.cc smtpsession.hh \
 	pptool.cc delivery.cc delivery.hh pplistener.cc ppsession.cc ppsession.hh \
 	powerimap.cc imapsession.cc imapsession.hh ahuexception.hh common.hh \
-	pool.hh
+	pool.hh 
+else 
+powermail_SOURCES=powerpop.cc popsession.cc popsession.hh \
+	session.cc session.hh lock.hh ssql.hh  \
+	userbase.hh logger.cc logger.hh common.cc mboxdir.cc\
+	pptalker.cc talker.hh pptalker.hh misc.cc misc.hh argsettings.cc argsettings.hh \
+	megatalker.cc megatalker.hh serversel.cc serversel.hh smtptalker.cc \
+	smtptalker.hh  userbase.cc  powersmtp.cc smtpsession.cc smtpsession.hh \
+	pptool.cc delivery.cc delivery.hh pplistener.cc ppsession.cc ppsession.hh \
+	powerimap.cc imapsession.cc imapsession.hh ahuexception.hh common.hh \
+	pool.hh smysql.cc
+endif 
 
-
-powermail_LDADD= @userbaseslibs@
-# -L/opt/oracle/lib -ldl -lclient8  -lclntst8 -ldl
-powermail_LDFLAGS=-pthread @userbasesfiles@
+powermail_LDADD= @userbasesfiles@ @userbaseslibs@ 
+powermail_LDFLAGS=-pthread  
 
 SUBDIRS=codedocs userbases 
 

@@ -94,7 +94,7 @@ public:
       suffer from bad portability problems, so look here if you see weird problems on new platforms */
   Session(const string &remote, int port, int timeout=0); 
   Session(u_int32_t ip, int port, int timeout=0);
-  Session(const Session &s); 
+
   
   ~Session();
   int getSocket(); //!< return the filedescriptor for layering violations
@@ -106,6 +106,8 @@ public:
   void setTimeout(unsigned int seconds);
 private:
   void doConnect(u_int32_t ip, int port);
+  Session(const Session &s); 
+  Session&operator=(const Session&);
   bool d_verbose;
   SessionBuffer rdbuf;
   int d_bufsize;

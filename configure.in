@@ -1,9 +1,9 @@
 dnl intro
 AC_INIT(pplistener.cc)
 AM_INIT_AUTOMAKE(powermail, 1.5.1)
-AC_PREFIX_DEFAULT(/usr)
+AC_PREFIX_DEFAULT(/usr/local)
 dnl AC_SYSCONFDIR_DEFAULT(/etc/powermail)
-CXXFLAGS="-Wall -pthread -O2 -g"
+CXXFLAGS="-Wall -pthread -O2"
 AM_CONFIG_HEADER(config.h pplistenerdefaults.h)
 AC_PROG_CC
 AC_PROG_CXX
@@ -60,8 +60,12 @@ AC_ARG_WITH(userbases, [  --with-userbases Which userbases to compile with ],
 # Location of MySQL installation
 #
 
+
 if echo $userbases | grep mysql > /dev/null
 then 
+mysqlsource=smysql.cc
+mysqlobject=smysql.cc
+AM_CONDITIONAL(MYSQL, true)
 AC_ARG_WITH(mysql,
     [  --with-mysql=<path>     root directory path of MySQL installation],
     [MYSQL_lib_check="$withval/lib/mysql $with_mysql/lib"
@@ -127,6 +131,8 @@ esac
 AC_MSG_RESULT([$MYSQL_incdir])
 
 CPPFLAGS="$CPPFLAGS -I${MYSQL_incdir}"
+else
+	AM_CONDITIONAL(MYSQL, false)
 fi
 
 # Userbases
@@ -134,6 +140,8 @@ fi
 AC_SUBST(userbasesdirs)
 AC_SUBST(userbasesfiles)
 AC_SUBST(userbaseslibs)
+AC_SUBST(mysqlsource)
+AC_SUBST(mysqlobject)
 
 tmp=""
 for a in $userbases

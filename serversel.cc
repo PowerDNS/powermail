@@ -32,7 +32,7 @@ extern Logger L;
 
 ServerSelect::ServerSelect(const vector<TargetData>&td)
 {
-  d_td=td;
+  d_td=td; 
   for(td_t::iterator i=d_td.begin();i!=d_td.end();++i) 
     i->used=false;
 }

@@ -43,7 +43,6 @@ private:
   string d_fname;
   bool d_parsed;
   static pthread_mutex_t d_launchlock;
-  static bool d_first;
   time_t d_last_mtime;
 };
 

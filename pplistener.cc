@@ -224,7 +224,7 @@ int PPListenerMain(int argc, char **argv)
   vector<string>commands;
   try {
     string response;
-
+    args().preparseArgs(argc, argv,"config-dir");
     if(args().parseFiles(response, (args().paramString("config-dir")+"/pplistener.conf").c_str(),0))
       L<<Logger::Warning<<"Warning: unable to open a configuration file"<<endl;
     else
@@ -236,7 +236,7 @@ int PPListenerMain(int argc, char **argv)
       exit(0);
     }
     if(args().commandGiven("version")) {
-      cerr<<"pplistener version "<<VERSION<<". This is $Id: pplistener.cc,v 1.2 2002-12-04 16:32:49 ahu Exp $"<<endl;
+      cerr<<"pplistener version "<<VERSION<<". This is $Id: pplistener.cc,v 1.3 2002-12-24 20:05:55 ahu Exp $"<<endl;
       exit(0);
     }
     if(args().commandGiven("make-config")) {

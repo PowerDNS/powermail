@@ -21,7 +21,6 @@ using namespace std;
 
 void Logger::log(const string &msg, Urgency u)
 {
-
   struct tm tmb;
   time_t t;
   time(&t);
@@ -57,7 +56,6 @@ void Logger::open()
 
 Logger::Logger(const string &n, int facility)
 {
-  cout<<"logger launched "<<(void *)&lock<<endl;
   opened=false;
   flags=LOG_PID|LOG_NDELAY;
   d_facility=facility;
@@ -110,15 +108,12 @@ Logger& Logger::operator<<(int i)
 Logger& Logger::operator<<(ostream & (&)(ostream &))
 {
   // *this<<" ("<<(int)d_outputurgencies[pthread_self()]<<", "<<(int)consoleUrgency<<")";
-  cout<<"lock: "<<(void *)&lock<<endl;
-
   Lock l(&lock);
 
   log(d_strings[pthread_self()], d_outputurgencies[pthread_self()]);
-  //  d_strings.erase(pthread_self());  // ??
-  //  d_outputurgencies.erase(pthread_self());
-  d_strings[pthread_self()]="";
-
+  d_strings.erase(pthread_self());  // ??
+  d_outputurgencies.erase(pthread_self());
+  
 
   return *this;
 }
