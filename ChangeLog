@@ -8,6 +8,8 @@ Changes since 1.4:
 	- give proper error code on non-existent email address (Marcello Scacchetti)
 	- add greetings-banner configuration (Marcello Scacchetti/bert hubert)
 	- textbase accidentally had a mysql dependency	
+	- moved one gethostbyname to gethostbyname_r
+	- improved Makefile to honor directory preferences (spotted by Florus Both)
 	
 Changes since 1.2:
 	- improved some logging

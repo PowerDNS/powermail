@@ -36,21 +36,21 @@ install-exec-local:
 	$(INSTALL) powersmtp.init.d $(DESTDIR)/etc/init.d/powersmtp
 	$(INSTALL) powerpop.init.d $(DESTDIR)/etc/init.d/powerpop
 	$(INSTALL) pplistener.init.d $(DESTDIR)/etc/init.d/pplistener
-	strip $(DESTDIR)/usr/bin/powermail
-	-mkdir -p $(DESTDIR)/usr/sbin/
-	ln -f $(DESTDIR)/usr/bin/powermail $(DESTDIR)/usr/sbin/powersmtp
-	ln -f $(DESTDIR)/usr/bin/powermail $(DESTDIR)/usr/sbin/powerpop
-	ln -f $(DESTDIR)/usr/bin/powermail $(DESTDIR)/usr/sbin/powerimap
-	ln -f $(DESTDIR)/usr/bin/powermail $(DESTDIR)/usr/sbin/pplistener
-	ln -f $(DESTDIR)/usr/bin/powermail $(DESTDIR)/usr/bin/mboxdir
-	ln -f $(DESTDIR)/usr/bin/powermail $(DESTDIR)/usr/bin/pptool
+	strip $(DESTDIR)/$(bindir)/powermail
+	-mkdir -p $(DESTDIR)/$(sbindir)
+	ln -f $(DESTDIR)/$(bindir)/powermail $(DESTDIR)/$(sbindir)/powersmtp
+	ln -f $(DESTDIR)/$(bindir)/powermail $(DESTDIR)/$(sbindir)/powerpop
+	ln -f $(DESTDIR)/$(bindir)/powermail $(DESTDIR)/$(sbindir)/powerimap
+	ln -f $(DESTDIR)/$(bindir)/powermail $(DESTDIR)/$(sbindir)/pplistener
+	ln -f $(DESTDIR)/$(bindir)/powermail $(DESTDIR)/$(bindir)/mboxdir
+	ln -f $(DESTDIR)/$(bindir)/powermail $(DESTDIR)/$(bindir)/pptool
 
 
 install-data-local:
 	-mkdir -p $(DESTDIR)$(sysconfdir)
-	@(if [ -e $(DESTDIR)$(sysconfdir)/powersmtp.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/powersmtp.conf file;else $(DESTDIR)/usr/sbin/powersmtp --make-config > $(DESTDIR)$(sysconfdir)/powersmtp.conf;fi )
-	@(if [ -e $(DESTDIR)$(sysconfdir)/powerpop.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/powerpop.conf file;else $(DESTDIR)/usr/sbin//powerpop --make-config > $(DESTDIR)$(sysconfdir)/powerpop.conf;fi )
-	@(if [ -e $(DESTDIR)$(sysconfdir)/pplistener.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/pplistener.conf file;else $(DESTDIR)/usr/sbin//pplistener --make-config > $(DESTDIR)$(sysconfdir)/pplistener.conf;fi )
+	@(if [ -e $(DESTDIR)$(sysconfdir)/powersmtp.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/powersmtp.conf file;else $(DESTDIR)/$(sbindir)/powersmtp --make-config > $(DESTDIR)$(sysconfdir)/powersmtp.conf;fi )
+	@(if [ -e $(DESTDIR)$(sysconfdir)/powerpop.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/powerpop.conf file;else $(DESTDIR)/$(sbindir)//powerpop --make-config > $(DESTDIR)$(sysconfdir)/powerpop.conf;fi )
+	@(if [ -e $(DESTDIR)$(sysconfdir)/pplistener.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/pplistener.conf file;else $(DESTDIR)/$(sbindir)/pplistener --make-config > $(DESTDIR)$(sysconfdir)/pplistener.conf;fi )
 	@(if [ -e $(DESTDIR)$(sysconfdir)/power.conf ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/power.conf file;else echo > $(DESTDIR)$(sysconfdir)/power.conf;fi )
 	@(if [ -e $(DESTDIR)$(sysconfdir)/mailboxes ] ;then echo Not overwriting existing $(DESTDIR)$(sysconfdir)/mailboxes file;else cat mailboxes.dist > $(DESTDIR)$(sysconfdir)/mailboxes;fi )
 	-mkdir -p $(DESTDIR)$(localstatedir)

@@ -4,18 +4,19 @@
 # description: PowerSMTP pplistener manages access to disk storage,
 #              making it available to the PowerSMTP and PowerPOP services.
 
-prefix=/usr
-exec_prefix=${prefix}
-bindir=${exec_prefix}/sbin
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+sbindir=@sbindir@
 
 case "$1" in
 	start | stop | status)
-	$bindir/pplistener $1
+	$sbindir/pplistener $1
 	;;
 
 	force-reload | restart)
-	$bindir/pplistener stop
-	$bindir/pplistener start
+	$sbindir/pplistener stop
+	$sbindir/pplistener start
 	;;
 	
 	*)

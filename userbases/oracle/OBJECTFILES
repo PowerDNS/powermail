@@ -1,1 +1,1 @@
-userbases/oracle/oracle.o -ldl -L/opt/oracle/lib -ldl -lclient8  -ldl -lclntst8
+userbases/oracle/oracle.o

@@ -3,18 +3,19 @@
 # chkconfig: - 80 75
 # description: PowerSMTP receives incoming email
 
-prefix=/usr
-exec_prefix=${prefix}
-bindir=${exec_prefix}/sbin
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+sbindir=@sbindir@
 
 case "$1" in
 	start | stop | status)
-	$bindir/powersmtp $1
+	$sbindir/powersmtp $1
 	;;
 
 	force-reload | restart)
-	$bindir/powersmtp stop
-	$bindir/powersmtp start
+	$sbindir/powersmtp stop
+	$sbindir/powersmtp start
 	;;
 	
 	*)
