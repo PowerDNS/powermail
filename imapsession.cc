@@ -39,7 +39,7 @@ extern Logger L;
 
 void IMAPSession::strip(string &line)
 {
-  unsigned int pos=line.find_first_of("\r\n");
+  string::size_type pos=line.find_first_of("\r\n");
   if(pos!=string::npos) {
     line.resize(pos);
   }
@@ -157,7 +157,7 @@ bool IMAPSession::unauthCommands(const string &command, const string &line, stri
     string tries[2];
     tries[0]=d_user;
     tries[1]="*";
-    unsigned int offset=d_user.find('@');
+    string::size_type offset=d_user.find('@');
     if(offset!=string::npos) {
       tries[1]+=d_user.substr(offset);
     }

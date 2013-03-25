@@ -17,6 +17,7 @@
 */
 #include "misc.hh"
 #include "logger.hh"
+#include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
 #include <fstream>
@@ -98,7 +99,7 @@ string stringerror()
 
 void stripLine(string &line)
 {
-  unsigned int pos=line.find_first_of("\r\n");
+  string::size_type pos=line.find_first_of("\r\n");
   if(pos!=string::npos) {
     line.resize(pos);
   }
@@ -121,3 +122,12 @@ void dropPrivs(int uid, int gid)
   }
 }
 
+void chomp(string &line, const string &delim)
+{
+  string::reverse_iterator i;
+  for( i=line.rbegin();i!=line.rend();++i) 
+    if(delim.find(*i)==string::npos) 
+      break;
+  
+  line.resize(line.rend()-i);
+}

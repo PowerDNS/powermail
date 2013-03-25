@@ -59,6 +59,8 @@ private:
   string d_from;
   string d_index;
   vector<MboxData>d_recipients;
+  vector<string> d_addressees;
+  string d_subject;
   bool d_indata;
   bool d_inheaders;
   bool d_multipart;

@@ -341,7 +341,7 @@ void MegaTalker::getMsgs(const string &mbox, mboxInfo_t &data)
       d_megaData[&*i]=ppData;
     }
     catch (PPTalkerException &e) {
-      L<<Logger::Error<<"Backend signals error listing mailbox: "<<e.getReason()<<endl;
+      L<<Logger::Error<<"Backend "<<i->address<<":"<<i->port<<" signals error listing mailbox: "<<e.getReason()<<endl;
       throw MegaTalkerException("Unable to list mailbox: "+e.getReason());
     }
   }

@@ -20,6 +20,7 @@
 #include "delivery.hh"
 #include <errno.h>
 #include <sys/types.h>
+#include <cstring>
 #include <dirent.h>
 #include <syslog.h>
 #include <sys/stat.h>
@@ -66,7 +67,7 @@ void PPState::setReadonly()
     return;
   
   L<<Logger::Error<<"State change to readonly"<<endl;
-  int fd=open((d_stateDir+"/readonly").c_str(),O_CREAT|O_RDONLY);
+  int fd=open((d_stateDir+"/readonly").c_str(),O_CREAT|O_RDONLY,0600);
   if(!fd<0)
     close(fd);
 }
@@ -103,7 +104,7 @@ void PPState::unsetReadonly()
 
 void PPListenSession::strip(string &line)
 {
-  unsigned int pos=line.find_first_of("\r\n");
+  string::size_type pos=line.find_first_of("\r\n");
   if(pos!=string::npos) {
     line.resize(pos);
   }

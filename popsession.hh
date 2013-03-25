@@ -1,6 +1,6 @@
 /*
     PowerMail versatile mail receiver
-    Copyright (C) 2002  PowerDNS.COM BV
+    Copyright (C) 2002 - 2007  PowerDNS.COM BV
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ private:
   void firstWordUC(string &line);
   int delDeleted(string &response);
   int scanDir(string &response);
-  const string PopSession::makeStatResponse();
+  const string makeStatResponse();
 
   string d_remote;
   string d_user;

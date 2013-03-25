@@ -16,6 +16,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include "session.hh"
+#include <stdlib.h>
 #include "ahuexception.hh"
 #include "popsession.hh"
 #include "logger.hh"
@@ -239,7 +240,7 @@ int PowerPopMain(int argc, char **argv)
     }
     args().preparseArgs(argc, argv,"version");
     if(args().commandGiven("version")) {
-      cerr<<"powerpop version "<<VERSION<<". This is $Id: powerpop.cc,v 1.4 2003-01-03 18:22:08 ahu Exp $"<<endl;
+      cerr<<"powerpop version "<<VERSION<<". This is $Id: powerpop.cc,v 1.5 2009-05-28 20:12:27 ahu Exp $"<<endl;
       exit(0);
     }
 

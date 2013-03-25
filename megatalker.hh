@@ -93,7 +93,7 @@ public:
   /** Retrieve all messages for a certain mbox, from all backends. Also sets the mbox, so later commands know which mbox you are refering to */
 
   /** For message status */
-  typedef struct msgInfo_t 
+  struct msgInfo_t 
   {
     string index;
     size_t size;

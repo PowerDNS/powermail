@@ -1,6 +1,6 @@
 /*
     PowerMail versatile mail receiver
-    Copyright (C) 2002  PowerDNS.COM BV
+    Copyright (C) 2002 - 2007 PowerDNS.COM BV
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -59,6 +59,8 @@ void SmtpSession::rsetSession()
   d_databytes=0;
   d_fromset=false;
   d_recipients.clear();
+  d_addressees.clear();
+  d_subject.clear();
   if(d_megatalker)
     delete d_megatalker;
   d_megatalker=0;
@@ -196,18 +198,24 @@ bool SmtpSession::eatDataLine(const string &line,string &response)
     if(!d_quotaneeded || (signed int)(d_databytes/1000)<d_kbroom)
       d_megatalker->msgAddLine(line);
 
-    if(d_inheaders && !line.find("Content-Type: multipart/mixed")) {
-      // Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
-      unsigned int pos=line.find("boundary=\"");
-      if(pos!=string::npos) {
-	d_boundary=line.substr(pos+10);
-
-	pos=d_boundary.find("\"");
-	if(pos!=string::npos)
-	  d_boundary=d_boundary.substr(0,pos);
+    if(d_inheaders) {
+      if(!line.find("Subject: ")) {
+	d_subject = line.substr(9);
+	chomp(d_subject);
       }
-      
-      d_multipart=true;
+      else if(!line.find("Content-Type: multipart/mixed")) {
+	// Content-Type: multipart/mixed; boundary="45Z9DzgjV8m4Oswq"
+	string::size_type pos=line.find("boundary=\"");
+	if(pos!=string::npos) {
+	  d_boundary=line.substr(pos+10);
+	  
+	  pos=d_boundary.find("\"");
+	  if(pos!=string::npos)
+	    d_boundary=d_boundary.substr(0,pos);
+	}
+	
+	d_multipart=true;
+      }
     }
 
     if(d_inheaders && (line[0]=='\n' || line[1]=='\n')) {
@@ -256,15 +264,22 @@ bool SmtpSession::eatDataLine(const string &line,string &response)
       rsetSession(); 
       return true;
     }
+    response="250 Delivered message <"+d_index+"> successfully to all recipients"; // if ok
+    L<<Logger::Warning<<"Delivered message <"<<d_index<<"> successfully to all recipients"<<endl;
+    
+    string logline="Delivered message from <" + d_from + "> with subject '" + d_subject + "' to: ";
+    for(vector<string>::const_iterator iter = d_addressees.begin(); iter != d_addressees.end(); ++iter) { 
+      if(iter != d_addressees.begin()) 
+	logline.append(", ");
+      logline.append(*iter);
+    }
+    L<<Logger::Warning<<logline<<endl;
     rsetSession();    
   }
   catch(MegaTalkerException &e) {
     response="450 Temporary backend error: "+e.getReason();
-    return true;
   }
     
-  response="250 Delivered message <"+d_index+"> successfully to all recipients"; // if ok
-  L<<Logger::Warning<<"Delivered message <"<<d_index<<"> successfully to all recipients"<<endl;
   return true;
 }
 
@@ -394,7 +409,7 @@ int SmtpSession::determineKbUsage(const string &mbox, size_t *usage, string &res
   for(MegaTalker::mboxInfo_t::const_iterator i=data.begin();
       i!=data.end();
       ++i) {
-    *usage+=max((unsigned int)4,(i->size/1024)); // penalize small files
+    *usage+=max((unsigned int)4,(unsigned int)(i->size/1024)); // penalize small files
   }
 
   return 0;
@@ -410,21 +425,21 @@ bool SmtpSession::eatTo(const string &line, string &response)
     else {
       // check existence here, retrieve quota, store all these
 
-      string d_to=extractAddress(line.substr(8));
+      string f_to=extractAddress(line.substr(8));
 
       MboxData md;
       int res;
-      //      L<<Logger::Error<<"Starting lookup for destination '"<<d_to<<"'"<<endl;
+      //      L<<Logger::Error<<"Starting lookup for destination '"<<f_to<<"'"<<endl;
 
       // semantics - check for a direct hit first, and see that it is
       // then check for a *@variant
 
       string tries[2];
-      tries[0]=d_to;
+      tries[0]=f_to;
       tries[1]="*";
-      unsigned int offset=d_to.find('@');
+      string::size_type offset=f_to.find('@');
       if(offset!=string::npos) {
-	tries[1]+=d_to.substr(offset);
+	tries[1]+=f_to.substr(offset);
       }
       
       bool exists=false,pwcorrect;
@@ -443,33 +458,36 @@ bool SmtpSession::eatTo(const string &line, string &response)
 	if(exists)
 	  break;
       }
-      if(exists && *dest!=d_to)
-	L<<Logger::Warning<<"Fallback match of '"<<d_to<<"' as '"<<*dest<<"'"<<endl;
+      if(exists && *dest!=f_to)
+	L<<Logger::Warning<<"Fallback match of '"<<f_to<<"' as '"<<*dest<<"'"<<endl;
 
       if(!exists) {
 	response="550 "+response;
-	L<<Logger::Warning<<"No such account in message <"<<d_index<<"> to <"<<d_to<<">"<<endl;
+	L<<Logger::Warning<<"No such account in message <"<<d_index<<"> to <"<<f_to<<">"<<endl;
 	return true;
       }
 
       // check here if this is a real mbox or a forward
       if(!md.isForward) { // real 
 	d_recipients.push_back(md);
-	response="250 Added recipient '"+d_to+"' to message <"+d_index+">";
+	response="250 Added recipient '"+f_to+"' to message <"+d_index+">";
       } else {  
 	try {
 	  if(!d_megatalker)
 	    d_megatalker=new MegaTalker;
 
-	  d_megatalker->addRemote(d_from,md.fwdDest,d_index);
+	  d_megatalker->addRemote(d_from, md.fwdDest, d_index);
 	  response="250 Will forward message <"+d_index+"> to <"+md.fwdDest+">";
-	  L<<"Forwarding <"<<d_index<<"> from <"<<d_from<<"> originally for <"<<d_to<<"> to <"<<md.fwdDest<<">"<<endl;
+	  L<<"Forwarding <"<<d_index<<"> from <"<<d_from<<"> originally for <"<<f_to<<"> to <"<<md.fwdDest<<">"<<endl;
+
 	}
 	catch(MegaTalkerException &e) {
 	  response="450 Not able to forward to <"+md.fwdDest+">: "+e.getReason();
 	  return true;
 	}
       }
+      L<<Logger::Error<<"Added '"<<f_to<<endl;
+      d_addressees.push_back(f_to);
     }
     return true;
   } 
@@ -479,7 +497,7 @@ bool SmtpSession::eatTo(const string &line, string &response)
 
 void SmtpSession::strip(string &line)
 {
-  unsigned int pos=line.find_first_of("\r\n");
+  string::size_type pos=line.find_first_of("\r\n");
   if(pos!=string::npos) {
     line.resize(pos);
   }

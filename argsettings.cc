@@ -1,6 +1,6 @@
 /*
     PowerMail versatile mail receiver
-    Copyright (C) 2002  PowerDNS.COM BV
+    Copyright (C) 2002 - 2009  PowerDNS.COM BV
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+#include <cstring>
 #include "argsettings.hh"
 #include "misc.hh"
 #include <iomanip>
@@ -169,16 +170,6 @@ void ArgSettings::parseArgs(int argc, char **argv)
   }
 }
 
-static void chomp(string &line, const string &delim)
-{
-  string::reverse_iterator i;
-  for( i=line.rbegin();i!=line.rend();++i) 
-    if(delim.find(*i)==string::npos) 
-      break;
-  
-  line.resize(line.rend()-i);
-  
-}
 
 
 bool ArgSettings::parseFile(const char *fname)

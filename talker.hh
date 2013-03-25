@@ -51,7 +51,7 @@ public:
   virtual void stat(int *kbytes, int *inodes=0, double *load=0)=0;
   virtual void startData()=0;
 
-  typedef struct msgInfo_t 
+  struct msgInfo_t 
   {
     string index;
     size_t size;

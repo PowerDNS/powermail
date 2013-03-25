@@ -1,6 +1,6 @@
 /*
     PowerMail versatile mail receiver
-    Copyright (C) 2002  PowerDNS.COM BV
+    Copyright (C) 2002 - 2009  PowerDNS.COM BV
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+#include <stdlib.h>
 #include "popsession.hh"
 #include "userbase.hh"
 #include "delivery.hh"
@@ -40,7 +41,7 @@ extern Logger L;
 
 void PopSession::strip(string &line)
 {
-  unsigned int pos=line.find_first_of("\r\n");
+  string::size_type pos=line.find_first_of("\r\n");
   if(pos!=string::npos) {
     line.resize(pos);
   }
@@ -138,7 +139,7 @@ bool PopSession::loginCommands(const string &line, string &response, quit_t &qui
     string tries[2];
     tries[0]=d_user;
     tries[1]="*";
-    unsigned int offset=d_user.find('@');
+    string::size_type offset=d_user.find('@');
     if(offset!=string::npos) {
       tries[1]+=d_user.substr(offset);
     }
@@ -224,7 +225,7 @@ bool PopSession::loginCommands(const string &line, string &response, quit_t &qui
     string tries[2];
     tries[0]=d_user;
     tries[1]="*";
-    unsigned int offset=d_user.find('@');
+    string::size_type offset=d_user.find('@');
     if(offset!=string::npos) {
       tries[1]+=d_user.substr(offset);
     }

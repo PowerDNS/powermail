@@ -1,6 +1,6 @@
 /*
     PowerMail versatile mail receiver
-    Copyright (C) 2002  PowerDNS.COM BV
+    Copyright (C) 2002 - 2009  PowerDNS.COM BV
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,8 +17,9 @@
 */
 /* Copyright 2001 Netherlabs BV, bert.hubert@netherlabs.nl. See LICENSE 
    for more information.
-   $Id: mboxdir.cc,v 1.2 2002-12-04 16:32:49 ahu Exp $  */
+   $Id: mboxdir.cc,v 1.3 2009-05-28 20:12:27 ahu Exp $  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
 #include "delivery.hh"

@@ -1,6 +1,6 @@
 /*
     PowerMail versatile mail receiver
-    Copyright (C) 2002  PowerDNS.COM BV
+    Copyright (C) 2002 - 2009  PowerDNS.COM BV
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #include <string>
+#include <stdlib.h>
 using namespace std;
 
 string md5calc(unsigned char *,int len);
@@ -58,3 +59,4 @@ string itoa(int i);
 
 void dropPrivs(int uid, int gid);
 string getLoad();
+void chomp(string &line, const string &delim="\r\n ");

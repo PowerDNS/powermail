@@ -265,7 +265,7 @@ void dirMboxes(bool lookup=false)
 
   unsigned int maxlen=0;
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) 
-    maxlen=max(maxlen,i->first.length());
+    maxlen=max(maxlen,(unsigned int)i->first.length());
 
   cout<<endl<<setw(maxlen+2)<<setiosflags(ios::left)<<"Mailbox"<<"# backends"<<endl;
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) {
@@ -292,7 +292,7 @@ void dirMboxes(const vector<string> &bends, bool lookup=false)
 
   unsigned int maxlen=0;
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) 
-    maxlen=max(maxlen,i->first.length());
+    maxlen=max(maxlen,(unsigned int)i->first.length());
 
   cout<<endl<<setw(maxlen+2)<<setiosflags(ios::left)<<"Mailbox"<<"# backends"<<endl;
   for(map<string,int>::const_iterator i=all.begin();i!=all.end();++i) {
@@ -429,7 +429,7 @@ void usageCommand(const string &mbox)
        pp.getMsgs(mbox, mbi);
        
        for (Talker::mboxInfo_t::const_iterator i=mbi.begin(); i!=mbi.end(); ++i) {
-          usage += max((unsigned int)4,(i->size/1024)); // penalize small files
+          usage += max((unsigned int)4, (unsigned int)(i->size/1024)); // penalize small files
        }
   
        ok = true;

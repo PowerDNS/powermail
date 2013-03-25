@@ -1,10 +1,10 @@
 Buildroot: /tmp/powermail
 Name: powermail
-Version: 1.7
-Release: 1
+Version: 1.8
+Release: 2
 Summary: extremely powerful and versatile mail receiver
-Copyright: see /usr/doc/pdns/copyright
 Distribution: Neutral
+License: GPL
 Vendor: PowerDNS.COM BV
 Group: System/MAIL
 AutoReqProv: no
@@ -22,6 +22,8 @@ This RPM is statically compiled and should work on all Linux distributions.
 "/usr/sbin/powerpop"
 "/usr/bin/pptool"
 "/usr/sbin/pplistener"
+"/usr/bin/mboxdir"
+"/usr/sbin/powerimap"
 #%dir "/usr/lib/"
 #%dir "/usr/lib/powerdns/"
 #"/usr/lib/powerdns/libbindbackend.so"
