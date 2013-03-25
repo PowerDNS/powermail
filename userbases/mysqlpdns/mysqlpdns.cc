@@ -21,6 +21,7 @@
 #include "logger.hh"
 #include "argsettings.hh"
 #include "common.hh"
+#include <stdlib.h>
 
 extern Logger L;
 
