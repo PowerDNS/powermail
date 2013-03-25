@@ -88,11 +88,12 @@ void ArgSettings::setParam(const vector<string> &parts, bool lax)
   const string &name=parts[0];
 
   map<string,Argument>::iterator i;
-  if((i=d_arguments.find(name))==d_arguments.end())
+  if((i=d_arguments.find(name))==d_arguments.end()) {
     if(lax)
       return;
     else
       throw ArgumentException("Unknown argument passed: '"+name+"'");
+  }
 
   Argument &arg=i->second;
   if(arg.getType()==Ignore)

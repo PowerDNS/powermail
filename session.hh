@@ -142,5 +142,5 @@ public:
   Exception(string r){reason=r;};
   string reason;
 };
-
+int writen(int fd, const void* ptr, size_t size);
 #endif /* SESSION_HH */

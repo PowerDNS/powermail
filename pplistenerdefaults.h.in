@@ -1,2 +1,0 @@
-#undef PPLISTENERUID
-#undef PPLISTENERGID

@@ -235,7 +235,7 @@ void PPTalker::blastMessageFD(const string &address, const string &index, size_t
     else
       line="+OK\r\n";
 
-    write(fd,line.c_str(),line.size());
+    writen(fd,line.c_str(),line.size());
     bool inheaders=true;
     int lineno=0;
 
@@ -251,12 +251,12 @@ void PPTalker::blastMessageFD(const string &address, const string &index, size_t
 	
 
       if(line[0]=='.' && (line[1]=='\r' || line[1]=='\n')) {
-	write(fd, ".\r\n",3);
+	writen(fd, ".\r\n",3);
 	break;
       }
 
       if(limit<0 || lineno<=limit)
-	write(fd, line.c_str(),line.length());
+	writen(fd, line.c_str(),line.length());
       
     }
   }

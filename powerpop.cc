@@ -185,8 +185,8 @@ void daemonize(void)
 
 
   setsid(); 
-  chdir("/");
-  umask(0);
+  if(!chdir("/"))  // silences warning, if this fails we are toast anyhow
+    umask(0);
 
   //  for(int i=0;i<sysconf(_SC_OPEN_MAX);i++)
   //  close(i);

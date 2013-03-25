@@ -443,3 +443,19 @@ bool Session::sendFile(int fd)
 
   return 0;
 }
+int writen(int fd, const void* ptr, size_t size)
+{
+  size_t done=0;
+  int ret;   
+  while(size!=done) {
+    ret=write(fd,(const char*)ptr+done,size-done);
+    if(ret==0) {
+      return 0;
+    }
+    if(ret<0)
+      throw SessionException("Error writing line to socket: "+string(strerror(errno)));
+    done+=ret;
+  }
+  return size;
+}
+                                                    
