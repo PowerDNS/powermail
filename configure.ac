@@ -222,8 +222,9 @@ userbases/mysqlplain/Makefile \
 userbases/mysqlpdns/Makefile \
 userbases/mysqlsimplepdns/Makefile \
 Makefile codedocs/Makefile \
+userbases/postgresql/Makefile \
 pplistener.init.d powersmtp.init.d powerpop.init.d )
 
-dnl userbases/postgresql/Makefile 
+dnl 
 dnl userbases/oracle/Makefile 
 dnl userbases/ldap/Makefile 
