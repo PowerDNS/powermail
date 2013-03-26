@@ -1,6 +1,6 @@
 dnl intro
 AC_INIT(pplistener.cc)
-AM_INIT_AUTOMAKE(powermail, 1.8)
+AM_INIT_AUTOMAKE(powermail, 1.9)
 AC_PREFIX_DEFAULT(/usr/local)
 dnl AC_SYSCONFDIR_DEFAULT(/etc/powermail)
 if test -z "$CXXFLAGS"
@@ -144,8 +144,8 @@ then
 	    [  --with-pgsql=<path>     root directory path of PgSQL installation],
 	    [PGSQL_lib_check="$withval/lib/pgsql $with_pgsql/lib"
 	PGSQL_inc_check="$withval/include/pgsql"],
-	    [PGSQL_lib_check="/usr/local/pgsql/lib/pgsql /usr/local/lib/pgsql /opt/pgsql/lib/pgsql /usr/lib/pgsql /usr/local/pgsql/lib /usr/local/lib /opt/pgsql/lib /usr/lib"
-	PGSQL_inc_check="/usr/local/pgsql/include/pgsql /usr/local/include/postgresql/ /usr/local/include /opt/pgsql/include/pgsql /opt/pgsql/include /usr/include/pgsql/ /usr/include /usr/include/postgresql"])
+	    [PGSQL_lib_check="/usr/local/pgsql/lib/pgsql /usr/local/lib/pgsql /opt/pgsql/lib/pgsql /opt/postgresql/lib/ /usr/lib/pgsql /usr/local/pgsql/lib /usr/local/lib /opt/pgsql/lib /usr/lib"
+	PGSQL_inc_check="/usr/local/pgsql/include/pgsql /usr/local/include/postgresql/ /usr/local/include /opt/postgresql/include/ /opt/pgsql/include/pgsql /opt/pgsql/include /usr/include/pgsql/ /usr/include /usr/include/postgresql"])
 		AC_ARG_WITH(pgsql-lib,
 	    [  --with-pgsql-lib=<path> directory path of PgSQL library installation],
 	    [PGSQL_lib_check="$withval/lib/pgsql $withval/pgsql $withval"])
@@ -222,9 +222,9 @@ userbases/mysqlplain/Makefile \
 userbases/mysqlpdns/Makefile \
 userbases/mysqlsimplepdns/Makefile \
 Makefile codedocs/Makefile \
-userbases/postgresql/Makefile \
+
 pplistener.init.d powersmtp.init.d powerpop.init.d )
 
-dnl 
+dnl userbases/postgresql/Makefile 
 dnl userbases/oracle/Makefile 
 dnl userbases/ldap/Makefile 
